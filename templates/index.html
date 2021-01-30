@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+  <script async src="https://www.googleoptimize.com/optimize.js?id=OPT-N48G79R"></script>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-164377371-2"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'UA-164377371-2');
+  </script>
+  <head>
+    <meta charset="UTF-8" />
+    <title>The Multi-Book Advanced Bible Search</title>
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='stylesheets/styles.css') }}" />
+    <link type="image/x-icon" rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}" />
+    <link type="image/x-icon" rel="shortcut icon" href="{{ url_for('static', filename='images/favicon.ico') }}" />
+    <!-- <script>
+      var viewMode = getCookie("view-mode");
+      if(viewMode == "desktop") {
+        viewport.setAttribute('content', 'width=1024');
+      }
+      else if (viewMode == "mobile") {
+        viewport.setAttribute('content', 'width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no');
+	  }
+	</script> -->
+  </head>
+  <body>
+  	<a href="https://github.com/aaronjohnsabu1999/mBAB" target="_blank">
+      <img style="position:absolute;top:0;right:0;border:0" width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_orange_ff7600.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1">
+    </a>
+    <center>
+      <header>
+        <h1>The Multi-Book Advanced Bible Search</h1>
+        &nbsp;&nbsp; <h4> by Aaron John Sabu </h4>
+      </header>
+      &nbsp;&nbsp;&nbsp; best viewed on a 1920×1080 screen
+   	  <hr />
+      <br>
+      <table>
+        <tr>
+          <td>
+          <button id="myBtn" class="btn yellow mini">About and How To Use</button>
+          <div id="myModal" class="modal">
+            <div class="modal-content">
+              <!-- <span class="close1">&times;</span> -->
+              <h2>About mBAB</h2>
+              <p>The Multi-Book Advanced Bible Search (mBAB) is a web application which can be used to search for verses containing a particular word sequence in a user-specified set of books. </p>
+              <h2>About the developer</h2>
+              <p>Aaron John Sabu is an undergraduate student at the Indian Institute of Technology Bombay (IIT-B) and is pursuing research in fields such as robotics and embedded systems. You can find him on <a href="https://aaronjohnsabu1999.github.io" target="_blank">his homepage</a></p>
+              <h2>How to use mBAB</h2>
+              <p>
+                You have the option to choose the version out of several English versions of the Holy Bible. You may enter the required word sequence in the search box that follows and provide these inputs to the application by selecting 'Search'. You can search either case-sensitively or case-insensitively, the latter being the default value.<br>
+                The books of the Holy Bible to search in for the word sequence can be selected in the left hand side of the web application. By default, the entire Bible is selected. You may search a specific portion of the Bible by selecting the corresponding buttons. Selecting 'The Old Testament' (or 'The New Testament') will flip the selection value of the book, i.e. if a book in the Old Testament (or New Testament) is already selected, it will be deselected, and vice versa.<br>
+                'Reset All' can be used to bring all the parameters of the applications back to default; i.e. the default version of NKJV, default search keyword being empty and the search being case-insensitive. Also, the entire Bible will be selected.<br><br>
+                Please do fork the <a href="https://github.com/aaronjohnsabu1999/mBAB" target="_blank">code repository hosted on GitHub</a> if interested in developing the application further.<br>
+                Issues can be posted on the <a href="https://github.com/aaronjohnsabu1999/mBAB/issues" target="_blank">Issues</a> forum<br>
+                Pull requests will be looked into and merged as per need and correctness with the contributor acknowledged in the repository. Please create them on the <a href="https://github.com/aaronjohnsabu1999/mBAB/pulls" target="_blank">Pull Requests</a> tab<br><hr><br>
+                This project has been licensed under <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank"> The GNU General Public License v3.0 <img src="https://www.gnu.org/graphics/gplv3-88x31.png"></a>
+              </p>
+            </div>
+          </div>
+      
+          <script>
+            var modal1 = document.getElementById("myModal");
+            var btn1   = document.getElementById("myBtn");
+            // var span1  = document.getElementsByClassName("close1")[0];
+            btn1.onclick = function() {
+              modal1.style.display = "block";
+            }
+            // span1.onclick = function() {
+            //   modal1.style.display = "none";
+            // }
+            window.onclick = function(event) {
+              if (event.target == modal1) {
+                modal1.style.display = "none";
+              }
+              if (event.target == modal2) {
+                modal2.style.display = "none";
+              }
+            }
+          </script>
+          &emsp;&emsp;&emsp;&emsp;
+          <a href="https://github.com/aaronjohnsabu1999/mBAB/blob/master/COOKIE_POLICY.md" target="_blank" class="button btn blue mini">Cookie Policy</a>
+          &emsp;&emsp;&emsp;&emsp;
+          <form method="GET" action="/">
+            <button type="submit" class="btn-gradient red mini">
+              Reset All
+            </button>
+          </form>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <form method="GET" action="/result">
+            Version:
+            <select name="version" class="selectpicker form-control">
+              {% for v in versions %}
+                <option
+                  value="{{ v.name }}"
+                  {% if v.name == version_name %}
+                    selected="selected"
+                  {% endif %}>
+                  {{ v.name }}
+                </option>
+              {% endfor %}
+            </select> &nbsp;
+            <input name="keyword" placeholder="Search for a Word Sequence" value="{{ keyword }}" list="searchForm" autocomplete="off" style="width: 130px;">
+            <datalist id="searchForm"></datalist>
+            <script type="text/javascript">
+              function getCookie(cname) {
+                var name = cname + "=";
+                var decodedCookie = decodeURIComponent(document.cookie);
+                var ca = decodedCookie.split(';');
+                for(var i = 0; i <ca.length; i++) {
+                  var c = ca[i];
+                  while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                  }
+                  if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                  }
+                }
+                return "";
+              }
+            
+              var pastSch = getCookie("past_searches")
+              var myPastSearches = pastSch.split(" :: ");
+
+              var options = '';
+              for(var i = myPastSearches.length - 1; i > 0; i--) {
+                options += '<option value="' +  myPastSearches[i] + '">';
+              }
+              options += '<option value="' +  myPastSearches[0].substring(1) + '">';
+              console.log(options)
+              document.getElementById('searchForm').innerHTML = options;
+            </script>
+            <button type="submit">Search</button>
+          </form>      
+          <form method="GET" action="/case">
+            <button
+              type="submit"
+              {% if caseSns %}
+                class="btn-gradient dark-green mini"
+              {% else %}
+                class="btn-gradient green mini"
+              {% endif %}>
+              Case Sensitive
+            </button>
+            &nbsp;&nbsp;&nbsp; About the version:
+            <a href="{{ version_wiki }}" target="_blank">{{ version_exp }}</a>
+          </form>
+        </td>
+        <td>
+          &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+          &emsp;&emsp;&emsp;&emsp;
+        </td>
+        </tr>
+      </table>
+      <a id="searchTipBtn" style="color: blue; border-bottom: 1px solid blue;" onclick="displayTips()">Search Tips</a>
+        <div id="searchTipModal" class="modal">
+        <div class="modal-content">
+          <!-- <span class="close2">&times;</span> -->
+            <h2>Search ORing</h2>
+            <p>You can search for verses containing <b>any</b> among a list of words/word sequences by adding <b>, (comma)</b> in between each word/sequence <u>without space</u>. For example, if you want to display all verses containing <b>Jesus</b> or <b>Christ</b> or both, your input should be <b>Jesus,Christ</b> </p>
+            <h2>Search ANDing</h2>
+            <p>You can search for verses containing <b>all</b> among a list of words/word sequences by adding <b>+ (plus)</b> in between each word/sequence <u>without space</u>. For example, if you want to display all verses containing <b>Jesus</b> and <b>Christ</b> irrespective of placement, your input should be <b>Jesus+Christ</b> </p>
+            <h2>Multi-Functions</h2>
+            <p>Search ANDing and ORing can be individually applied for any number of word sequences. They can also be used together. However, in this case, <u>stepwise ANDing is performed first and then ORing</u>. <br>For example, if your input is <b>Aaron+Moses,Miriam+Joshua</b>, you are searching for all verses containing <b>Aaron and Moses</b>, or <b>Aaron and Moses and Joshua</b>, or <b>Miriam</b><br> If your input is <b>Aaron+Moses+Joshua,Miriam</b>, you are searching for all verses containing <b>Aaron and Moses and Joshua</b>, as well as for all verses containing <b>Miriam</b></p>
+        </div>
+      </div>
+      
+      <script>
+      var modal2 = document.getElementById("searchTipModal");
+      var btn2   = document.getElementById("searchTipBtns");
+      // var span2  = document.getElementsByClassName("close2")[0];
+      function displayTips() {
+        modal2.style.display = "block";
+      }
+      // span2.onclick = function() {
+      //   modal2.style.display = "none";
+      // }
+      // window.onclick = function(event) {
+      //   if (event.target == modal2) {
+      //     modal2.style.display = "none";
+      //   }
+      // }
+      </script>
+    </center>
+    <br>
+    <hr />
+      <table>
+        <tr>
+          <th align="center" colspan="4">
+            <table>
+              <th class="OT" colspan="1">
+                <form class="form-inline" method="GET" action="/testChoose/ot">
+                  <button type="submit" class="btn-gradient cyan mini">
+                    The Old Testament
+                  </button>
+                </form>
+              </th>
+              <th class="Bib" colspan="1">
+                <form class="form-inline" method="GET" action="/testChoose/bib">
+                  <button type="submit" class="btn-gradient purple mini">
+                    The Entire Bible
+                  </button>
+                </form>
+              </th>
+              <th class="NT" colspan="1">
+                <form class="form-inline" method="GET" action="/testChoose/nt">
+                  <button type="submit" class="btn-gradient cyan mini">
+                    The New Testament
+                  </button>
+                </form>
+              </th>
+            </table>
+          </th>
+          <th>
+            Verse List
+            {% if not(keyword == "") or (not(rows|length == 0) and rows[0]['verse'][0][0:3] != "!!!") %}
+              : Found {{ rows|length }} verses
+            {% endif %}
+          </th>
+        </tr>
+        <tr>
+    <form class="form-inline" method="GET" action="/bookChoose">
+          <td valign="top" style="width:5%">
+            {% for book in books %}
+              {% if book.testament == 'OT1' %}
+                <button name="book" value="{{ book.text }}" type="submit" {% if book.num in selBooks %} class="btn-gradient dark-blue mini" {% else %} class="btn-gradient blue mini" {% endif %}>
+                  {{ book.text }}
+                </button>
+                <br>
+              {% endif %}
+            {% endfor %}
+          </td>
+          <td valign="top" style="width:8%">
+            {% for book in books %}
+              {% if book.testament == 'OT2' %}
+                <button name="book" value="{{ book.text }}" type="submit" {% if book.num in selBooks %} class="btn-gradient dark-blue mini" {% else %} class="btn-gradient blue mini" {% endif %}>
+                  {{ book.text }}
+                </button>
+                <br>
+              {% endif %}
+            {% endfor %}
+          </td>
+          <td valign="top" style="width:8%">
+            {% for book in books %}
+              {% if book.testament == 'NT1' %}
+                <button name="book" value="{{ book.text }}" type="submit" {% if book.num in selBooks %} class="btn-gradient dark-blue mini" {% else %} class="btn-gradient blue mini" {% endif %}>
+                  {{ book.text }}
+                </button>
+                <br>
+              {% endif %}
+            {% endfor %}
+          </td>
+          <td valign="top" style="width:5%">
+            {% for book in books %}
+              {% if book.testament == 'NT2' %}
+                <button name="book" value="{{ book.text }}" type="submit" {% if book.num in selBooks %} class="btn-gradient dark-blue mini" {% else %} class="btn-gradient blue mini" {% endif %}>
+                  {{ book.text }}
+                </button>
+                <br>
+              {% endif %}
+            {% endfor %}
+          </td>
+        <td id="verseList">
+          <table>
+            {% for row in rows %}
+              <tr>
+                <td style="white-space: nowrap">
+                  &nbsp; {{ row.Book }} {{ row.Chapter }}:{{ row.Versecount }} &nbsp;&nbsp;
+                </td>
+                <td>
+                  {%- for part in row.verse -%}
+                    {%- if (keyword == "") -%}
+                      {{ part }}
+                    {%- else -%}
+                      {%- set satisfied = namespace(value=0) -%}
+                      {%- for word in keywords -%}
+                        {%- if ((word.upper() in part.upper() and not caseSns) or word in part) -%}
+                          {%- set satisfied.value = 1 -%}
+                        {%- endif -%}
+                      {%- endfor -%}
+
+                      {%- if (satisfied.value == 1) -%}
+                        <mark>{{ part }}</mark>
+                      {%- else -%}
+                        {{ part }}
+                      {%- endif -%}
+                    {%- endif -%}
+                  {%- endfor -%}
+                </td>
+              </tr>
+              <tr>
+                <td><br class="small"></td>
+              </tr>
+            {% endfor %}
+          </table>
+        </td>
+      </tr>
+    </table>
+    </form>
+    <hr />
+  </body>
+</html>
