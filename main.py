@@ -44,8 +44,8 @@ books    = [ {
       'num': "17", 'type': "OTWisdom",   'selected': True, 'testament': "OT1", 'id': 17, 'text': "Job" }, {
       'num': "18", 'type': "OTWisdom",   'selected': True, 'testament': "OT1", 'id': 18, 'text': "Psalms" }, {
       'num': "19", 'type': "OTWisdom",   'selected': True, 'testament': "OT1", 'id': 19, 'text': "Proverbs" }, {
-      'num': "20", 'type': "OTWisdom",   'selected': True, 'testament': "OT2", 'id': 20, 'text': "Song of Songs" }, {
-      'num': "21", 'type': "OTWisdom",   'selected': True, 'testament': "OT2", 'id': 21, 'text': "Ecclesiastes" }, {
+      'num': "20", 'type': "OTWisdom",   'selected': True, 'testament': "OT2", 'id': 20, 'text': "Ecclesiastes" }, {
+      'num': "21", 'type': "OTWisdom",   'selected': True, 'testament': "OT2", 'id': 21, 'text': "Song of Songs" }, {
       'num': "22", 'type': "OTProphet",  'selected': True, 'testament': "OT2", 'id': 22, 'text': "Isaiah" }, {
       'num': "23", 'type': "OTProphet",  'selected': True, 'testament': "OT2", 'id': 23, 'text': "Jeremiah" }, {
       'num': "24", 'type': "OTProphet",  'selected': True, 'testament': "OT2", 'id': 24, 'text': "Lamentations" }, {
