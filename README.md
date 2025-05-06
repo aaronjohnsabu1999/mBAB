@@ -1,6 +1,6 @@
 # The Multi-Book Advanced Bible Search (mBAB)
 
-### Table of Contents
+## Table of Contents
 
 - [Introduction](#introduction)
 - [For the Developer...](#for-the-developer)
@@ -10,71 +10,99 @@
 - [Possible additions and modifications](#possible-additions-and-modifications)
 - [License](#license)
 
-### Introduction
+## Introduction
 
-This web application provides users the ability to search for a word sequence, either case-sensitive or case-insensitive, across a user-specified set of books of the Holy Bible.  
-The application is currently hosted at [this platform](http://aaronjs.pythonanywhere.com/).
+This web application allows users to search for word sequences—either case-sensitive or case-insensitive—across a user-specified set of Bible books.  
 
-This project was originally developed using Flask and has now been **rebuilt using Django** for improved scalability and maintainability.
+**Features**
+- Multi-book and multi-version search
+- Case-sensitive or insensitive toggling
+- Custom book selection with OT/NT toggles
+- Clean, dark-mode friendly UI
+- Logical AND (+) and OR (,) search operators
 
-![A Search Example](./mBAB.png "Searching for 'saviour' or 'Holy Ghost' in a user-specified set of books in the American Standard Version English Bible")
+Hosted live at [aaronjs.pythonanywhere.com](http://aaronjs.pythonanywhere.com/).
 
-### For the Developer...
+Originally built with Flask, **rebuilt using Django** for better scalability, maintainability, and extensibility.
 
-#### Useful Links
+![A Search Example](./mBAB.png "Searching for 'spirit' and 'holy' and 'christ' within the non-Pauline New Testament books in the English Standard Version English Bible")
 
-* [Django Official Documentation](https://docs.djangoproject.com/en/stable/)
-* [Jinja Template and Syntax](https://jinja.palletsprojects.com/en/2.11.x/templates/) (still used for templates)
-* [Python SQLite3 Documentation](https://docs.python.org/3/library/sqlite3.html)
+## Getting Started for Developers
 
-#### Installation of Necessary Packages
+This guide will help you set up and run the Multi-Book Advanced Bible Search (mBAB) project locally for development or customization.
 
-Tested on **Python 3.11+**.
+### Useful Resources
 
-You can set up the project as follows:
+- [Django Official Documentation](https://docs.djangoproject.com/en/stable/)
+- [Jinja Template Syntax](https://jinja.palletsprojects.com/en/2.11.x/templates/) — used for templating
+- [Python `sqlite3` Module](https://docs.python.org/3/library/sqlite3.html)
+- [Tailwind CSS](https://tailwindcss.com/docs) — for utility-first styling
+
+### Requirements
+
+- Python 3.11 or higher
+- `pip` and `venv` (usually bundled with Python)
+- A Unix-like shell (Linux/macOS or WSL on Windows recommended)
+
+### Installation Steps
 
 ```bash
-# Install virtualenv if needed
-sudo apt install python3-venv
+# Clone the codebase repository
+git clone https://github.com/aaronjohnsabu1999/mBAB.git ~/mBAB
+cd ~/mBAB
 
-# Create and activate a virtual environment
+# Set up a virtual environment
 python3 -m venv venv
-source venv/bin/activate
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
 
-# Apply migrations (no models currently but necessary for Django)
+# Apply Django migrations (none required yet, but necessary for Django setup)
 python manage.py migrate
+```
 
-# Run the server
+### Setting Up the Bible Databases
+To keep the main repo lightweight, the SQLite Bible databases are hosted separately.
+Download or clone them from Bible Databases and place the .db files inside a folder named databases/ at the root of this project.
+
+```bash
+# Clone the database repository
+mkdir ~/mBAB/databases/
+git clone https://github.com/aaronjohnsabu1999/bible-databases.git ~/bible-databases/
+
+# Move databases to codebase directory
+cp ~/bible-databases/DB/*.db ~/mBAB/databases/
+```
+
+### Running the Application
+Start the Django development server:
+
+```bash
+# Run the application locally
 python manage.py runserver
+```
 
-#### Database Access
+Then open your browser and navigate to: [http://localhost:8000/](http://localhost:8000/).  
+You should see the mBAB interface ready for searches and exploration.
 
-Presently I have removed databases from the corresponding directory in order to facilitate easier cloning of the repository. Feel free to download from or clone the repository on [Bible Databases](https://github.com/aaronjohnsabu1999/bible-databases)
+## Contributors
 
-***
-### Contributors
+Formatting and design feedback have been generously provided by my parents, Sabu John and Jessy Sabu John, along with several other users.
+Flask development support was offered extensively by [@hbhoyar](https://github.com/hbhoyar).
+The searchable Bible content is based on SQL databases originally published by [@scrollmapper](https://github.com/scrollmapper) and later cleaned and reorganized by me. To keep this repository lightweight and easy to clone, those databases have been moved to a separate repository: [Bible Databases](https://github.com/aaronjohnsabu1999/bible-databases).
 
-Formatting suggestions have been provided by my dad, [Sabu John](https://www.facebook.com/sabu.john.104) and my mom, Jessy Sabu John, alongside several other users.  
-Support for Flask has been provided extensively by [@hbhoyar](https://github.com/hbhoyar)  
-The databases have been parsed from the SQL databases provided by [@scrollmapper](https://github.com/scrollmapper)
+## Roadmap & Potential Contributions
 
-***
-### Possible additions and modifications
-##### You are welcome to contribute by adding to this list (issues) or improving it (pull requests):
+- [ ] Make the UI fully responsive for mobile screens
+- [ ] Support copyrighted Bible versions (NIV, NLT, BSI, etc.)
+- [ ] Add pagination for search results
+- [ ] Enable logical grouping and parentheses in search syntax
+- [ ] Move controls into a collapsible sidebar
+- [ ] Improve styling with more theme options
+- [ ] Add optional user accounts with saved history
+- [ ] Subdivide books by genre (Law, Gospels, etc.)
 
-* Make the web application fully responsive for mobile devices (smaller than 1920×1080 screens).
-* Move controls into a collapsible sidebar for better usability.
-* Add copyrighted versions such as NIV, NLT, and BSI Indian versions.
-* Optionally introduce pagination for search results.
-* Further subdivide the testaments by type (Law, History, Gospels, etc.).
-* Extend search syntax beyond simple OR (,) and AND (+) (partially done).
-* Improve UI/UX with more styling and theming.
-* Enable optional user accounts to save search history.
-
-***
-### License
+## License
 
 This project has been licensed under [![The GNU General Public License v3.0](https://www.gnu.org/graphics/gplv3-88x31.png "The GNU General Public License v3.0")](https://www.gnu.org/licenses/gpl-3.0.en.html)
