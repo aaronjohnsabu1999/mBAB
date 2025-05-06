@@ -1,4 +1,4 @@
-# The Multi-Book Advanced Bible Search
+# The Multi-Book Advanced Bible Search (mBAB)
 
 ### Table of Contents
 
@@ -12,23 +12,43 @@
 
 ### Introduction
 
-This web application is one which provides the user the ability to search for a word sequence, case-sensitive or case-insensitive, in a specified set of books of the Holy Bible.  
-The web application has been hosted on [this platform](http://aaronjs.pythonanywhere.com/)
+This web application provides users the ability to search for a word sequence, either case-sensitive or case-insensitive, across a user-specified set of books of the Holy Bible.  
+The application is currently hosted at [this platform](http://aaronjs.pythonanywhere.com/).
+
+This project was originally developed using Flask and has now been **rebuilt using Django** for improved scalability and maintainability.
 
 ![A Search Example](./mBAB.png "Searching for 'saviour' or 'Holy Ghost' in a user-specified set of books in the American Standard Version English Bible")
-***
+
 ### For the Developer...
 
 #### Useful Links
 
-* [Jinja Template and Syntax](https://jinja.palletsprojects.com/en/2.11.x/templates/)
+* [Django Official Documentation](https://docs.djangoproject.com/en/stable/)
+* [Jinja Template and Syntax](https://jinja.palletsprojects.com/en/2.11.x/templates/) (still used for templates)
+* [Python SQLite3 Documentation](https://docs.python.org/3/library/sqlite3.html)
 
 #### Installation of Necessary Packages
-(Python 3.6.9 has been used for the development of the web app)
 
-    sudo apt install make  
-    make install  
-    make
+Tested on **Python 3.11+**.
+
+You can set up the project as follows:
+
+```bash
+# Install virtualenv if needed
+sudo apt install python3-venv
+
+# Create and activate a virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Apply migrations (no models currently but necessary for Django)
+python manage.py migrate
+
+# Run the server
+python manage.py runserver
 
 #### Database Access
 
@@ -43,18 +63,16 @@ The databases have been parsed from the SQL databases provided by [@scrollmapper
 
 ***
 ### Possible additions and modifications
-##### You are most welcome to contribute for adding to this list (issues) and for removing from this list (pull requests)
+##### You are welcome to contribute by adding to this list (issues) or improving it (pull requests):
 
-* Making the web application completely compatible for mobile devices; i.e., devices without 1920 x 1080 resolution: Refer to [this](https://stackoverflow.com/a/31908156/6539635), [this](https://stackoverflow.com/a/29589339/6539635) and [this](https://stackoverflow.com/a/24499296/6539635) StackOverflow answers, also refer to [this blog](https://www.inserthtml.com/2011/08/making-website-fit-screen/)
-* Increase the sizes and move the buttons into a collapsible sidebar.
-* Addition of copyrighted versions such as NIV, NLT and BSI Indian versions (which also require Indian language keyboards): Rather than storing the databases, the search for a verse can be linked to searches in databases stored by YouVersion, BibleGateway, etc.
-* Pagination for verses as an option to the user (not everyone wants pagination but some may prefer it for better rendering of the verses
-* Subdivision of the testaments such as Law, History, Gospels, etc. (conflicting suggestions - not to be pursued at the moment)
-* Addition of search ORing, ANDing, etc. using separators such as comma (,), plus (+), etc. **(COMPLETE)**
-* Removal of PythonAnywhere input from the latest user when opened by a new user: Solved by storing search input, version, selected books and case-sensitivity on the browser of the user as cookies  **(COMPLETE)**
-* More styling features and a logo for mBAB **(COMPLETE)**
-* Highlighting the search keyword in the results **(COMPLETE)**
-* Display of the number of matching verses **(COMPLETE)**
+* Make the web application fully responsive for mobile devices (smaller than 1920×1080 screens).
+* Move controls into a collapsible sidebar for better usability.
+* Add copyrighted versions such as NIV, NLT, and BSI Indian versions.
+* Optionally introduce pagination for search results.
+* Further subdivide the testaments by type (Law, History, Gospels, etc.).
+* Extend search syntax beyond simple OR (,) and AND (+) (partially done).
+* Improve UI/UX with more styling and theming.
+* Enable optional user accounts to save search history.
 
 ***
 ### License

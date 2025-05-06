@@ -3,7 +3,7 @@
 
 ### What Are Cookies
 
-As is common practice with almost all professional websites, this site uses cookies, which are tiny files that are downloaded to your computer, to improve your experience. This document describes what information they gather, how we use it and why we sometimes need to store these cookies. We will also share how you can prevent these cookies from being stored; however, this may downgrade or 'break' certain elements of the sites functionality.  
+As is common practice with almost all professional websites, this site uses cookies, which are tiny files that are downloaded to your computer, to improve your experience. This document describes what information they gather, how we use it and why we sometimes need to store these cookies. We will also share how you can prevent these cookies from being stored; however, this may downgrade or 'break' certain elements of the sites functionality.
 For more general information on cookies, please read ["What Are Cookies"](https://www.cookieconsent.com/what-are-cookies/).
 
 ### How We Use Cookies
@@ -18,14 +18,18 @@ You can prevent the setting of cookies by adjusting the settings on your browser
 
 #### Site preferences cookies
 
-When you submit data through a form, cookies may be set to remember your input details; i.e., in order to remember your input, we need to set cookies so that this information can be called whenever you interact with a page. In order to provide you with a great experience on this site, these preferences are set for how this site runs when you use it.
+When you submit data through a form, or interact with selections on the site (such as choosing Bible versions, search keywords, case sensitivity, or selecting books to search within), cookies may be set to remember your choices and preferences. These cookies are essential to provide you with a personalized and consistent experience.
+
+#### Security cookies
+
+In order to maintain security and protect your interactions with forms, we may set small security cookies (such as CSRF tokens) to validate user actions and prevent malicious attacks. These cookies are automatically managed by the application framework.
 
 #### Third Party Cookies
 
-This site uses Google Analytics which is one of the most widespread and trusted analytics solution on the web for helping us to understand how you use the site and ways that we can improve your experience. These cookies may track things such as how long you spend on the site and the pages that you visit so we can continue to produce engaging content.  
+This site uses Google Analytics which is one of the most widespread and trusted analytics solution on the web for helping us to understand how you use the site and ways that we can improve your experience. These cookies may track things such as how long you spend on the site and the pages that you visit so we can continue to produce engaging content. 
 For more information on Google Analytics cookies, see the official [Google Analytics](https://analytics.google.com/analytics/web/#/) page.
 
 ### More Information
 
-Hopefully that has clarified things for you and as was previously mentioned if there is something that you aren't sure whether you need or not it's usually safer to leave cookies enabled in case it does interact with one of the features you use on our site. However if you are still looking for more information then you can contact us:  
+Hopefully that has clarified things for you and as was previously mentioned if there is something that you aren't sure whether you need or not it's usually safer to leave cookies enabled in case it does interact with one of the features you use on our site. However if you are still looking for more information then you can contact us: 
 Email: <aaronjohnsabu1999@gmail.com>
