@@ -1,0 +1,200 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Multi-Book Advanced Bible Search</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class'
+      };
+    </script>
+    
+    <link rel="icon" href="{% static 'searchapp/images/favicon.ico' %}" />
+    <style>
+      body {
+        transition: background-color 0.5s, color 0.5s;
+      }
+    </style>
+  </head>
+
+  <body class="bg-white text-black dark:bg-gray-900 dark:text-white">
+    <!-- HEADER -->
+    <header class="bg-indigo-700 dark:bg-indigo-900 text-white py-6 shadow-md">
+      <div class="container mx-auto px-4 text-center">
+        <h1 class="text-3xl font-bold">Multi-Book Advanced Bible Search</h1>
+        <p class="text-sm">by Aaron John Sabu</p>
+        <!-- <p class="text-xs mt-1">Best viewed on a 1920×1080 screen</p> -->
+        <button type="button" id="darkToggle" class="text-xs mt-2 bg-black bg-opacity-30 px-2 py-1 rounded border border-white hover:bg-opacity-50">
+          <span id="themeLabel"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- TOP ACTION BAR -->
+    <div class="px-6 py-4 flex justify-between items-center bg-gray-100 dark:bg-gray-800 shadow-md">
+      <div class="flex flex-wrap gap-4 items-center">
+        <form method="GET" action="/">
+          <button type="submit" class="bg-red-500 dark:bg-red-700 hover:bg-red-600 dark:hover:bg-red-800 text-white px-4 py-2 rounded">
+            Reset All
+          </button>
+        </form>
+        <form method="GET" action="/result" class="flex flex-wrap items-center gap-2">
+          <label for="version">Version:</label>
+          <select name="version" id="version" class="border rounded px-2 py-1 dark:bg-gray-800 dark:border-gray-600">
+            {% for v in versions %}
+            <option value="{{ v.name }}" {% if v.name == version_name %}selected{% endif %}>{{ v.name }}</option>
+            {% endfor %}
+          </select>
+          <input type="text" name="keyword" value="{{ keyword }}" placeholder="Search for a Word Sequence" class="border px-2 py-1 rounded w-60 dark:bg-gray-800 dark:border-gray-600" list="searchForm" autocomplete="off" />
+          <datalist id="searchForm"></datalist>
+          <button type="submit" id="searchButton" class="bg-blue-500 dark:bg-blue-700 hover:bg-blue-600 dark:hover:bg-blue-800 text-white px-4 py-2 rounded">
+            Search
+          </button>          
+        </form>
+        <form method="GET" action="/case">
+          <button type="submit" id="caseToggle"
+            class="px-4 py-2 rounded text-white 
+              {% if case_sensitive %}
+                bg-emerald-600 dark:bg-emerald-700 hover:bg-emerald-700 dark:hover:bg-emerald-800
+              {% else %}
+                bg-teal-600 dark:bg-teal-700 hover:bg-teal-700 dark:hover:bg-teal-800
+              {% endif %}">
+            Switch to {% if case_sensitive %}Case Insensitive{% else %}Case Sensitive{% endif %}
+        </button>
+        </form>
+      </div>
+      <div class="text-sm">
+        <span>About the version:</span>
+        <a href="{{ version_wiki }}" target="_blank" class="text-blue-600 dark:text-blue-400 underline">{{ version_exp }}</a>
+      </div>
+    </div>
+
+    <!-- SPLIT MAIN SECTION -->
+    <main class="flex h-[calc(100vh-10rem)] divide-x divide-gray-300 dark:divide-gray-700">
+      <!-- BOOKS PANEL -->
+      <div class="w-1/2 overflow-y-auto p-6">
+        <div class="flex justify-between mt-6">
+          <form method="GET" action="/testChoose/ot">
+            <button type="submit" class="bg-cyan-500 dark:bg-cyan-700 hover:bg-cyan-600 dark:hover:bg-cyan-800 text-white px-3 py-1 rounded">
+              Old Testament
+            </button>            
+          </form>
+          <form method="GET" action="/testChoose/bib">
+            <button type="submit" class="px-3 py-1 rounded text-white 
+              bg-indigo-600 dark:bg-indigo-700 hover:bg-indigo-700 dark:hover:bg-indigo-800">
+              Entire Bible
+            </button>
+          </form>
+          <form method="GET" action="/testChoose/nt">
+            <button type="submit" class="bg-cyan-500 dark:bg-cyan-700 hover:bg-cyan-600 dark:hover:bg-cyan-800 text-white px-3 py-1 rounded">
+              New Testament
+            </button>            
+          </form>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4">
+          {% for section in sections %}
+          <div>
+            <h2 class="text-lg font-semibold mb-2">
+              {% if section == 'OT1' %}Old Testament{% elif section == 'NT1' %}New Testament{% else %} {% endif %}
+            </h2>
+            <form method="GET" action="/bookChoose" class="space-y-1">
+              {% for book in books %}
+                {% if book.testament == section %}
+                <button type="submit" name="book" value="{{ book.text }}"
+                  class="w-full px-2 py-1 rounded {% if book.num in selBooks %}
+                  bg-blue-900 text-white dark:bg-blue-700
+                    {% else %}
+                      bg-blue-100 text-blue-900 hover:bg-blue-200 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600
+                    {% endif %}">
+                  {{ book.text }}
+                </button>
+                {% endif %}
+              {% endfor %}
+            </form>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- VERSES PANEL -->
+      <div class="w-1/2 p-6 overflow-y-auto">
+        <h2 class="text-xl font-semibold mb-4">
+          Verse List
+          {% if keyword %}
+            <span class="text-sm text-gray-500">({{ rows|length }} results)</span>
+          {% elif rows and rows.0.verse.0 != '!!!' %}
+            <span class="text-sm text-gray-500">({{ rows|length }} results)</span>
+          {% endif %}
+        </h2>
+        <div class="space-y-4">
+          {% for row in rows %}
+          <div class="p-4 border rounded bg-white text-black shadow 
+            dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700">
+            <div class="font-semibold mb-1">{{ row.Book }} {{ row.Chapter }}:{{ row.Versecount }}</div>
+            <p>
+              {% for part in row.verse %}
+                {% with joined=keywords|join:" " %}
+                  {% if case_sensitive %}
+                    {% if part in joined %}
+                      <mark class="bg-yellow-200 px-1 dark:bg-yellow-500 dark:text-black">{{ part }}</mark>
+                    {% else %}
+                      {{ part }}
+                    {% endif %}
+                  {% else %}
+                    {% if part|lower in joined|lower %}
+                      <mark class="bg-yellow-200 px-1 dark:bg-yellow-500 dark:text-black">{{ part }}</mark>
+                    {% else %}
+                      {{ part }}
+                    {% endif %}
+                  {% endif %}
+                {% endwith %}
+              {% endfor %}
+            </p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </main>
+
+    <footer class="bg-gray-100 dark:bg-gray-800 text-center text-xs py-4">
+      <p>
+        Made with ❤️ by <a class="text-blue-600 dark:text-blue-400 underline" href="https://aaronjohnsabu1999.github.io">Aaron John Sabu</a>. 
+        <a class="text-blue-600 dark:text-blue-400 underline" href="https://github.com/aaronjohnsabu1999/mBAB">Fork on GitHub</a>
+      </p>
+    </footer>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const toggle = document.getElementById('darkToggle');
+        const label = document.getElementById('themeLabel');
+        const html = document.documentElement;
+    
+        function setTheme(mode) {
+          if (mode === 'dark') {
+            html.classList.add('dark');
+            localStorage.setItem('theme', 'dark');
+            label.innerHTML = '<span class="text-blue-400">☀️</span> Switch to Light Mode';
+          } else {
+            html.classList.remove('dark');
+            localStorage.setItem('theme', 'light');
+            label.innerHTML = '<span class="text-yellow-400">🌙</span> Switch to Dark Mode';
+          }
+        }
+    
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        setTheme(savedTheme);
+    
+        toggle.addEventListener('click', () => {
+          const newTheme = html.classList.contains('dark') ? 'light' : 'dark';
+          setTheme(newTheme);
+        });
+      });
+    </script>
+  </body>
+</html>
