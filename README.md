@@ -2,12 +2,15 @@
 
 ## Table of Contents
 
-- [Introduction](#introduction)
-- [For the Developer...](#for-the-developer)
-  * [Useful Links](#useful-links)
-  * [Installation of Necessary Packages](#installation-of-necessary-packages)
-- [Contributors](#contributors)
-- [Possible additions and modifications](#possible-additions-and-modifications)
+- [Introduction](#introduction)  
+- [Getting Started for Developers](#getting-started-for-developers)  
+  - [Useful Resources](#useful-resources)  
+  - [Requirements](#requirements)  
+  - [Installation Steps](#installation-steps)  
+  - [Setting Up the Bible Databases](#setting-up-the-bible-databases)  
+  - [Running the Application](#running-the-application)  
+- [Contributors](#contributors)  
+- [Roadmap & Potential Contributions](#roadmap--potential-contributions)  
 - [License](#license)
 
 ## Introduction
