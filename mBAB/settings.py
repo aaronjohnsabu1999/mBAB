@@ -33,7 +33,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "mbab.urls"
+ROOT_URLCONF = "mBAB.urls"
 
 TEMPLATES = [
     {
@@ -51,7 +51,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "mbab.wsgi.application"
+WSGI_APPLICATION = "mBAB.wsgi.application"
 
 # Database
 DATABASES = {
