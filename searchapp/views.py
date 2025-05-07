@@ -1,41 +1,12 @@
 import re, sqlite3
 from django.shortcuts import render
-from django.http import HttpResponse
 from .bibledata import testaments, testament_map, books, versions, sql_select, sql_order
-
-
-def dict_factory(cursor, row):
-    return {col[0]: row[idx] for idx, col in enumerate(cursor.description)}
-
-
-def keyword_splitter(input_words):
-    keywords = re.split(r"[,+]", input_words)
-    delimiters = re.findall(r"[,+]", input_words)
-    return keywords, delimiters
-
-
-def find_version(version_name):
-    version = next(item for item in versions if item["name"] == version_name)
-    return version["expansion"], version["wiki"]
-
-
-def update_selection(selected_books, testaments):
-    selected = set(selected_books.split())
-    for book in books:
-        if book["testament"] in testaments:
-            selected.symmetric_difference_update({book["num"]})
-    return " ".join(sorted(selected))
-
-
-def result_sorter(rows):
-    return sorted(
-        rows, key=lambda row: (row["Book"], row["Chapter"], row["Versecount"])
-    )
-
+try:
+    from .gtag_secret import GTAG_ID
+except ImportError:
+    GTAG_ID = None
 
 def index(request, *args, **kwargs):
-    for book in books:
-        book["selected"] = True
     return db_refresh(
         request,
         input_words="",
@@ -58,6 +29,29 @@ def case_flip(request, *args, **kwargs):
     return db_refresh(request, flip_case=True)
 
 
+def dict_factory(cursor, row):
+    return {col[0]: row[idx] for idx, col in enumerate(cursor.description)}
+
+
+def find_version(version_name):
+    version = next(item for item in versions if item["name"] == version_name)
+    return version["expansion"], version["wiki"]
+
+
+def update_selection(selected_books, testaments):
+    selected = set(selected_books.split())
+    for book in books:
+        if book["testament"] in testaments:
+            selected.symmetric_difference_update({book["num"]})
+    return " ".join(sorted(selected))
+
+
+def sort_rows(rows):
+    return sorted(
+        rows, key=lambda row: (row["Book"], row["Chapter"], row["Versecount"])
+    )
+
+
 def update_testament(request, test, *args, **kwargs):
     return db_refresh(request, flip_test=test)
 
@@ -69,51 +63,71 @@ def book_select(request, *args, **kwargs):
             return db_refresh(request, flip_book=book["num"])
 
 
-def book_update(input_words, case_sensitive, selected_books, rows):
-    updated_rows = []
-    for row in rows:
-        exact_match = any(word in row["verse"] for word in input_words)
-        if f"{row['Book']:02}" in selected_books and (
-            not case_sensitive or exact_match
-        ):
-            book_text = next(b for b in books if b["id"] == row["Book"])["text"]
-            updated_rows.append(
-                {
-                    "Book": book_text,
-                    "Chapter": row["Chapter"],
-                    "Versecount": row["Versecount"],
-                    "verse": row["verse"],
-                }
-            )
-    return updated_rows
+# Boolean query helpers
+def tokenize_expr(expr):
+    return re.findall(r"\w+|[(),+]", expr)
 
 
-def sql_row_gen(keywords, version_name, delimiters):
-    sql_command = sql_select
-    conditions = []
+def to_postfix(tokens):
+    precedence = {"+": 2, ",": 1}
+    output = []
+    stack = []
+    for token in tokens:
+        if token.isalnum():
+            output.append(token)
+        elif token in ("+", ","):
+            while (
+                stack
+                and stack[-1] in precedence
+                and precedence[stack[-1]] >= precedence[token]
+            ):
+                output.append(stack.pop())
+            stack.append(token)
+        elif token == "(":
+            stack.append(token)
+        elif token == ")":
+            while stack and stack[-1] != "(":
+                output.append(stack.pop())
+            stack.pop()
+    while stack:
+        output.append(stack.pop())
+    return output
 
-    for i, word in enumerate(keywords):
-        if word.strip() == "":
-            continue
-        conditions.append(f"LOWER(verse) LIKE LOWER('%{word}%')")
-        if i < len(delimiters):
-            if delimiters[i] == ",":
-                conditions.append("OR")
-            elif delimiters[i] == "+":
-                conditions.append("AND")
 
-    while conditions and conditions[-1] in ("AND", "OR"):
-        conditions.pop()
+def build_sql_from_postfix(postfix_tokens, case_sensitive=False):
+    stack = []
+    values = []
+    for token in postfix_tokens:
+        if token.isalnum():
+            if case_sensitive:
+                stack.append(("verse LIKE ?", [f"%{token}%"]))
+            else:
+                stack.append(("LOWER(verse) LIKE LOWER(?)", [f"%{token}%"]))
+        elif token in ("+", ","):
+            op = "AND" if token == "+" else "OR"
+            right_expr, right_vals = stack.pop()
+            left_expr, left_vals = stack.pop()
+            combined_expr = f"({left_expr} {op} {right_expr})"
+            stack.append((combined_expr, left_vals + right_vals))
+    return stack[0] if stack else ("1=0", [])
 
-    if not conditions:
-        sql_command = sql_select + "1=0 " + sql_order
-    else:
-        sql_command += " ".join(conditions) + " " + sql_order
+
+def sql_row_gen(expression, version_name, case_sensitive=False):
+    tokens = tokenize_expr(expression)
+    postfix = to_postfix(tokens)
+    where_clause, values = build_sql_from_postfix(postfix, case_sensitive)
+
+    sql_command = f"{sql_select} {where_clause} {sql_order}"
 
     db = sqlite3.connect(f"./databases/{version_name}Bible_Database.db")
     db.row_factory = dict_factory
     cur = db.cursor()
-    cur.execute(sql_command)
+
+    # 🔥 Add this line to enforce case-sensitive LIKE
+    if case_sensitive:
+        cur.execute("PRAGMA case_sensitive_like = true;")
+
+    cur.execute(sql_command, values)
     rows = cur.fetchall()
     cur.close()
     return rows
@@ -143,22 +157,19 @@ def build_context(
         "keywords": keywords,
         "keyword": input_words,
         "selBooks": selected_books,
+        "gtag_id": GTAG_ID,
     }
 
 
 def db_refresh(request, *args, **kwargs):
     input_words = kwargs.get("input_words", "")
-    version_name = kwargs.get("version_name", "")
+    version_name = kwargs.get("version_name") or request.GET.get("version", "ESV")
     input_w = kwargs.get("input_w", False)
     blank = kwargs.get("blank", False)
     flip_case = kwargs.get("flip_case", False)
     flip_book = kwargs.get("flip_book", "")
     flip_test = kwargs.get("flip_test", "")
 
-    response = HttpResponse()
-
-    if not blank and version_name == "":
-        version_name = request.COOKIES.get("version_name", "ESV")
     version_exp, version_wiki = find_version(version_name)
 
     if blank:
@@ -176,18 +187,18 @@ def db_refresh(request, *args, **kwargs):
                 case_sensitive=False,
             ),
         )
-        response.set_cookie("case_sensitive", "False")
-        response.set_cookie("version_name", version_name)
-        response.set_cookie("selected_books", selected_books)
         return response
 
-    case_sensitive = request.COOKIES.get("case_sensitive", "False") == "True"
-    if not input_w:
-        input_words = request.COOKIES.get("search_input", "")
+    case_sensitive = request.GET.get("case", "False") == "True"
+    books_param = request.GET.get("books", "")
+    selected_books = ""
+
+    if books_param.isdigit():
+        bits = f"{int(books_param):066b}"[::-1]
+        selected_books = " ".join(f"{i:02}" for i, bit in enumerate(bits) if bit == "1")
+
     if flip_case:
         case_sensitive = not case_sensitive
-
-    selected_books = request.COOKIES.get("selected_books", "")
 
     if flip_book:
         selected_books = (
@@ -200,18 +211,50 @@ def db_refresh(request, *args, **kwargs):
             selected_books, testament_map.get(flip_test, [])
         )
 
-    keywords, delimiters = keyword_splitter(input_words)
-    rows = book_update(
-        keywords,
-        case_sensitive,
-        selected_books,
-        result_sorter(sql_row_gen(keywords, version_name, delimiters)),
-    )
+    # ✅ extract words once, use everywhere
+    highlight_words = re.findall(r"\w+", input_words) if input_words else []
+
+    # ✅ safe boolean-parsed SQL query + sorting
+    raw_rows = sort_rows(sql_row_gen(input_words, version_name, case_sensitive))
+    rows = []
+    for row in raw_rows:
+        if f"{row['Book']:02}" in selected_books:
+            book_text = next(b for b in books if b["id"] == row["Book"])["text"]
+            rows.append(
+                {
+                    "Book": book_text,
+                    "Chapter": row["Chapter"],
+                    "Versecount": row["Versecount"],
+                    "verse": row["verse"],
+                }
+            )
 
     for row in rows:
         if input_words:
-            regex = "|".join(re.escape(word) for word in keywords)
-            row["verse"] = re.split(f"({regex})", row["verse"], flags=re.IGNORECASE)
+            regex = "|".join(re.escape(word) for word in highlight_words)
+            verse_text = row["verse"]
+            matches = list(
+                re.finditer(
+                    regex, verse_text, flags=0 if case_sensitive else re.IGNORECASE
+                )
+            )
+
+            parts = []
+            last_idx = 0
+            for match in matches:
+                start, end = match.span()
+                if start > last_idx:
+                    # Capture plain text before match, as string
+                    parts.append({"text": verse_text[last_idx:start]})
+                # Capture the match
+                parts.append({"highlight": verse_text[start:end]})
+                last_idx = end
+            if last_idx < len(verse_text):
+                parts.append({"text": verse_text[last_idx:]})
+
+            row["verse"] = parts
+        else:
+            row["verse"] = [{"text": row["verse"]}]
 
     response = render(
         request,
@@ -224,12 +267,8 @@ def db_refresh(request, *args, **kwargs):
             input_words=input_words,
             selected_books=selected_books,
             case_sensitive=case_sensitive,
-            keywords=keywords,
+            keywords=highlight_words,
         ),
     )
 
-    response.set_cookie("case_sensitive", str(case_sensitive))
-    response.set_cookie("search_input", input_words)
-    response.set_cookie("version_name", version_name)
-    response.set_cookie("selected_books", selected_books)
     return response

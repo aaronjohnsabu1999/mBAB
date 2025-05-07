@@ -22,6 +22,8 @@
     </style>
   </head>
 
+  {% include "includes/gtag.html" %}
+
   <body class="flex flex-col min-h-screen bg-white text-black dark:bg-gray-900 dark:text-white">
     <!-- HEADER -->
     <header id="site-header" class="bg-indigo-700 dark:bg-indigo-900 text-white py-6 shadow-md relative z-50">
@@ -45,64 +47,78 @@
           class="fixed left-0 w-full md:w-[420px] bg-white dark:bg-gray-900 shadow-xl transform -translate-x-full transition-transform duration-300 overflow-hidden">
         <!-- Scrollable container -->
         <div id="sidebar-scroll-container" class="h-full overflow-y-auto p-4 space-y-4">
-          <!-- Toggle Filters Button -->
-          <div class="flex justify-between items-center mb-2">
-            <h2 class="text-lg font-bold">Filters</h2>
-          </div>
-
-          <!-- Reset Filters Button -->
-          <form method="GET" action="/">
-            <button type="submit" class="bg-red-500 text-white w-full px-4 py-2 rounded">Reset Filters</button>
-          </form>
-
-          <!-- Version Control and Search -->
-          <form method="GET" action="/result" class="space-y-2">
-            <label for="version" class="block font-semibold">Version:</label>
-            <select name="version" id="version" class="w-full border rounded px-2 py-1 dark:bg-gray-800 dark:border-gray-600">
-              {% for v in versions %}
-              <option value="{{ v.name }}" {% if v.name == version_name %}selected{% endif %}>{{ v.name }}</option>
-              {% endfor %}
-            </select>
-
-            <input type="text" name="keyword" value="{{ keyword }}" placeholder="Search…" class="w-full border px-2 py-1 rounded dark:bg-gray-800 dark:border-gray-600" autocomplete="off" />
-            <button type="submit" class="w-full bg-blue-500 text-white px-4 py-2 rounded">Search</button>
-          </form>
-
-          <!-- Case Sensitivity Button -->
-          <form method="GET" action="/case">
-            <button type="submit" id="caseToggle" class="w-full px-4 py-2 rounded text-white 
-              {% if case_sensitive %} bg-emerald-600 dark:bg-emerald-700 {% else %} bg-teal-600 dark:bg-teal-700 {% endif %}">
-              Switch to {% if case_sensitive %}Case Insensitive{% else %}Case Sensitive{% endif %}
-            </button>
-          </form>
-
-          <!-- Testament Buttons -->
-          <div class="flex justify-between">
-            <form method="GET" action="/testChoose/ot"><button type="submit" class="bg-cyan-500 text-white px-3 py-1 rounded">Old Testament</button></form>
-            <form method="GET" action="/testChoose/bib"><button type="submit" class="bg-indigo-600 text-white px-3 py-1 rounded">Entire Bible</button></form>
-            <form method="GET" action="/testChoose/nt"><button type="submit" class="bg-cyan-500 text-white px-3 py-1 rounded">New Testament</button></form>
-          </div>
-
-          <!-- Book Buttons -->
-          <div class="grid grid-cols-1 gap-4">
-            {% for testament in testaments %}
-            <div>
-              <h2 class="text-lg font-semibold mt-4 mb-2">{{ testament }}</h2>
-              <form method="GET" action="/bookChoose" class="space-y-1">
-                {% for book in books %}
-                {% if book.testament == testament %}
-                <button type="submit" name="book" value="{{ book.text }}"
-                  class="w-full px-2 py-1 rounded {% if book.num in selBooks %}
-                  bg-blue-900 text-white dark:bg-blue-700
-                  {% else %}
-                  bg-blue-100 text-blue-900 hover:bg-blue-200 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600
-                  {% endif %}">{{ book.text }}</button>
-                {% endif %}
-                {% endfor %}
-              </form>
+          <form id="searchForm" method="GET" action="/result" class="space-y-4">
+            <div class="flex justify-between items-center mb-2">
+              <h2 class="text-lg font-bold">Filters</h2>
             </div>
-            {% endfor %}
-          </div>
+    
+            <!-- Reset -->
+            <div>
+              <a href="/" class="block bg-red-600 hover:bg-red-700 text-white w-full px-4 py-2 rounded text-center font-semibold">Reset Filters</a>
+            </div>
+    
+            <!-- Version -->
+            <div>
+              <label for="version" class="block font-semibold text-gray-700 dark:text-gray-300">Version:</label>
+              <select name="version" id="version" class="w-full border rounded px-2 py-1 bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                {% for v in versions %}
+                <option value="{{ v.name }}" {% if v.name == version_name %}selected{% endif %}>{{ v.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+    
+            <!-- Case -->
+            <button type="button" id="caseToggle"
+              class="w-full px-4 py-2 rounded font-semibold text-white transition-colors duration-150
+                {% if case_sensitive %} bg-emerald-800 hover:bg-emerald-900 {% else %} bg-teal-800 hover:bg-teal-900 {% endif %}">
+                Switch to {% if case_sensitive %}Case Insensitive{% else %}Case Sensitive{% endif %}
+            </button>
+            <input type="hidden" name="case" id="caseInput" value="{% if case_sensitive %}True{% else %}False{% endif %}" />
+    
+            <!-- Keyword -->
+            <input type="text" name="keyword" value="{{ keyword }}" placeholder="Search for keywords" class="w-full border px-2 py-1 rounded bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white" autocomplete="on" />
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-semibold">Search</button>
+
+            <!-- Hidden books field -->
+            <input type="hidden" name="books" id="booksField" />
+    
+            <!-- Testament Shortcuts -->
+            <!-- <div class="flex justify-between">
+              <button type="button" onclick="toggleTestament('ot')" class="bg-cyan-500 text-white px-3 py-2 rounded w-full">Old Testament</button>
+              <button type="button" onclick="toggleTestament('bib')" class="bg-indigo-600 text-white px-3 py-2 rounded w-full">Entire Bible</button>
+              <button type="button" onclick="toggleTestament('nt')" class="bg-cyan-500 text-white px-3 py-2 rounded w-full">New Testament</button>
+            </div> -->
+            <div class="grid grid-cols-3 gap-2">
+              <button type="button" onclick="toggleTestament('ot')" class="bg-cyan-700 hover:bg-cyan-800 text-white font-semibold px-3 py-2 rounded">Old Testament</button>
+              <button type="button" onclick="toggleTestament('bib')" class="bg-violet-600 hover:bg-violet-700 text-white font-semibold px-3 py-2 rounded">Entire Bible</button>
+              <button type="button" onclick="toggleTestament('nt')" class="bg-cyan-700 hover:bg-cyan-800 text-white font-semibold px-3 py-2 rounded">New Testament</button>
+            </div> 
+
+            <!-- Book Buttons -->
+            <div class="grid grid-cols-1 gap-4">
+              {% for testament in testaments %}
+              <div>
+                <h2 class="text-lg font-semibold mt-4 mb-2">{{ testament }}</h2>
+                <div class="space-y-1">
+                  {% for book in books %}
+                  {% if book.testament == testament %}
+                  <button type="button" onclick="toggleBook({{ book.id }}, this)"
+                    class="w-full px-2 py-1 rounded toggle-book font-medium
+                    {% if book.num in selBooks %}
+                      bg-blue-900 text-white dark:bg-blue-700
+                    {% else %}
+                      bg-blue-100 text-blue-900 hover:bg-blue-200 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600
+                    {% endif %}">
+                    {{ book.text }}
+                  </button>
+                  {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+
+          </form>    
         </div>
       </div>
     </div>
@@ -125,23 +141,7 @@
         <div class="p-4 border rounded bg-white text-black shadow dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700">
           <div class="font-semibold mb-1">{{ row.Book }} {{ row.Chapter }}:{{ row.Versecount }}</div>
           <p>
-            {% for part in row.verse %}
-            {% with joined=keywords|join:" " %}
-              {% if case_sensitive %}
-              {% if part in joined %}
-              <mark class="bg-yellow-200 px-1 dark:bg-yellow-500 dark:text-black">{{ part }}</mark>
-              {% else %}
-              {{ part }}
-              {% endif %}
-              {% else %}
-              {% if part|lower in joined|lower %}
-              <mark class="bg-yellow-200 px-1 dark:bg-yellow-500 dark:text-black">{{ part }}</mark>
-              {% else %}
-              {{ part }}
-              {% endif %}
-              {% endif %}
-            {% endwith %}
-            {% endfor %}
+            {% for part in row.verse %}{% if part.highlight %}<span class="bg-yellow-200 dark:bg-yellow-500 text-black rounded-sm">{{ part.highlight }}</span>{% else %}{{ part.text }}{% endif %}{% endfor %}
           </p>
         </div>
         {% endfor %}
@@ -250,6 +250,73 @@
             clearTimeout(sidebarTimeout);
           }
         }
+
+        document.querySelectorAll('.toggle-book').forEach((btn, idx) => {
+          if (btn.classList.contains("bg-blue-900")) {
+            bookBits[idx] = 1;
+          }
+        });
+      });
+    </script>
+    <script>
+      const bookBits = new Array(66).fill(0);
+      const booksField = document.getElementById('booksField');
+      const caseInput = document.getElementById('caseInput');
+      const caseToggle = document.getElementById('caseToggle');
+      
+      function toggleTestament(key) {
+        const sets = {
+          ot: [...Array(39).keys()],
+          nt: [...Array(66).keys()].slice(39),
+          bib: [...Array(66).keys()]
+        };
+        const indices = sets[key];
+
+        // Check whether all relevant books are currently selected
+        const allSelected = indices.every(idx => bookBits[idx] === 1);
+        const newValue = allSelected ? 0 : 1;
+
+        document.querySelectorAll('.toggle-book').forEach((btn, idx) => {
+          if (!indices.includes(idx)) return;
+
+          bookBits[idx] = newValue;
+
+          if (newValue === 1) {
+            btn.classList.add("bg-blue-900", "text-white", "dark:bg-blue-700");
+            btn.classList.remove("bg-blue-100", "text-blue-900", "hover:bg-blue-200", "dark:bg-gray-700", "dark:text-white", "dark:hover:bg-gray-600");
+          } else {
+            btn.classList.remove("bg-blue-900", "text-white", "dark:bg-blue-700");
+            btn.classList.add("bg-blue-100", "text-blue-900", "hover:bg-blue-200", "dark:bg-gray-700", "dark:text-white", "dark:hover:bg-gray-600");
+          }
+        });
+      }
+
+      caseToggle.addEventListener('click', () => {
+        const isNowTrue = caseInput.value === "False";
+        caseInput.value = isNowTrue ? "True" : "False";
+        caseToggle.textContent = isNowTrue ? "Switch to Case Insensitive" : "Switch to Case Sensitive";
+
+        caseToggle.classList.toggle("bg-emerald-600", isNowTrue);
+        caseToggle.classList.toggle("dark:bg-emerald-700", isNowTrue);
+        caseToggle.classList.toggle("bg-teal-600", !isNowTrue);
+        caseToggle.classList.toggle("dark:bg-teal-700", !isNowTrue);
+      });
+
+      function toggleBook(index, button) {
+        bookBits[index] ^= 1;
+        button.classList.toggle("bg-blue-900");
+        button.classList.toggle("text-white");
+        button.classList.toggle("dark:bg-blue-700");
+        button.classList.toggle("bg-blue-100");
+        button.classList.toggle("text-blue-900");
+        button.classList.toggle("hover:bg-blue-200");
+        button.classList.toggle("dark:bg-gray-700");
+        button.classList.toggle("dark:hover:bg-gray-600");
+      }
+
+      document.getElementById("searchForm").addEventListener("submit", function () {
+        const bits = [...bookBits].reverse().join(""); // Genesis = LSB
+        booksField.value = BigInt("0b" + bits).toString();
       });
     </script>
   </body>

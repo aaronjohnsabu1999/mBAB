@@ -11,7 +11,7 @@ SECRET_KEY = "mBABonPython"  # replace later for production
 DEBUG = True
 
 # ALLOWED_HOSTS = ["127.0.0.1", "aaronjs.pythonanywhere.com"] # production
-ALLOWED_HOSTS = ['*'] # testing
+ALLOWED_HOSTS = ["*"]  # testing
 
 # Application definition
 INSTALLED_APPS = [
