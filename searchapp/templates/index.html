@@ -1,4 +1,3 @@
-
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -6,174 +5,169 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Multi-Book Advanced Bible Search</title>
-    
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
         darkMode: 'class'
       };
     </script>
-    
+
     <link rel="icon" href="{% static 'searchapp/images/favicon.ico' %}" />
     <style>
-      body {
+      html, body {
+        overflow-x: hidden;
         transition: background-color 0.5s, color 0.5s;
       }
     </style>
   </head>
 
-  <body class="bg-white text-black dark:bg-gray-900 dark:text-white">
+  <body class="flex flex-col min-h-screen bg-white text-black dark:bg-gray-900 dark:text-white">
     <!-- HEADER -->
-    <header class="bg-indigo-700 dark:bg-indigo-900 text-white py-6 shadow-md">
-      <div class="container mx-auto px-4 text-center">
+    <header id="site-header" class="bg-indigo-700 dark:bg-indigo-900 text-white py-6 shadow-md relative z-50">
+      <div class="w-full px-4 text-center">
         <h1 class="text-3xl font-bold">Multi-Book Advanced Bible Search</h1>
         <p class="text-sm">by Aaron John Sabu</p>
-        <!-- <p class="text-xs mt-1">Best viewed on a 1920×1080 screen</p> -->
-        <button type="button" id="darkToggle" class="text-xs mt-2 bg-black bg-opacity-30 px-2 py-1 rounded border border-white hover:bg-opacity-50">
-          <span id="themeLabel"></span>
-        </button>
+        <div class="flex justify-center mt-2 gap-2">
+          <button onclick="toggleSidebar()" class="bg-indigo-600 text-white px-4 py-1 rounded text-sm">
+            ☰ Filters
+          </button>
+          <button type="button" id="darkToggle" class="text-xs bg-black bg-opacity-30 px-2 py-1 rounded border border-white hover:bg-opacity-50">
+            <span id="themeLabel"></span>
+          </button>
+        </div>
       </div>
     </header>
 
-    <!-- TOP ACTION BAR -->
-    <div class="px-6 py-4 flex justify-between items-center bg-gray-100 dark:bg-gray-800 shadow-md">
-      <div class="flex flex-wrap gap-4 items-center">
-        <form method="GET" action="/">
-          <button type="submit" class="bg-red-500 dark:bg-red-700 hover:bg-red-600 dark:hover:bg-red-800 text-white px-4 py-2 rounded">
-            Reset All
-          </button>
-        </form>
-        <form method="GET" action="/result" class="flex flex-wrap items-center gap-2">
-          <label for="version">Version:</label>
-          <select name="version" id="version" class="border rounded px-2 py-1 dark:bg-gray-800 dark:border-gray-600">
-            {% for v in versions %}
-            <option value="{{ v.name }}" {% if v.name == version_name %}selected{% endif %}>{{ v.name }}</option>
-            {% endfor %}
-          </select>
-          <input type="text" name="keyword" value="{{ keyword }}" placeholder="Search for a Word Sequence" class="border px-2 py-1 rounded w-60 dark:bg-gray-800 dark:border-gray-600" list="searchForm" autocomplete="off" />
-          <datalist id="searchForm"></datalist>
-          <button type="submit" id="searchButton" class="bg-blue-500 dark:bg-blue-700 hover:bg-blue-600 dark:hover:bg-blue-800 text-white px-4 py-2 rounded">
-            Search
-          </button>          
-        </form>
-        <form method="GET" action="/case">
-          <button type="submit" id="caseToggle"
-            class="px-4 py-2 rounded text-white 
-              {% if case_sensitive %}
-                bg-emerald-600 dark:bg-emerald-700 hover:bg-emerald-700 dark:hover:bg-emerald-800
-              {% else %}
-                bg-teal-600 dark:bg-teal-700 hover:bg-teal-700 dark:hover:bg-teal-800
-              {% endif %}">
-            Switch to {% if case_sensitive %}Case Insensitive{% else %}Case Sensitive{% endif %}
-        </button>
-        </form>
-      </div>
-      <div class="text-sm">
-        <span>About the version:</span>
-        <a href="{{ version_wiki }}" target="_blank" class="text-blue-600 dark:text-blue-400 underline">{{ version_exp }}</a>
-      </div>
-    </div>
+    <!-- Sidebar -->
+    <div id="sidebar-wrapper" class="relative z-40">
+      <div id="sidebar"
+          class="fixed left-0 w-full md:w-[420px] bg-white dark:bg-gray-900 shadow-xl transform -translate-x-full transition-transform duration-300 overflow-hidden">
+        <!-- Scrollable container -->
+        <div id="sidebar-scroll-container" class="h-full overflow-y-auto p-4 space-y-4">
+          <!-- Toggle Filters Button -->
+          <div class="flex justify-between items-center mb-2">
+            <h2 class="text-lg font-bold">Filters</h2>
+          </div>
 
-    <!-- SPLIT MAIN SECTION -->
-    <main class="flex h-[calc(100vh-10rem)] divide-x divide-gray-300 dark:divide-gray-700">
-      <!-- BOOKS PANEL -->
-      <div class="w-1/2 overflow-y-auto p-6">
-        <div class="flex justify-between mt-6">
-          <form method="GET" action="/testChoose/ot">
-            <button type="submit" class="bg-cyan-500 dark:bg-cyan-700 hover:bg-cyan-600 dark:hover:bg-cyan-800 text-white px-3 py-1 rounded">
-              Old Testament
-            </button>            
+          <!-- Reset Filters Button -->
+          <form method="GET" action="/">
+            <button type="submit" class="bg-red-500 text-white w-full px-4 py-2 rounded">Reset Filters</button>
           </form>
-          <form method="GET" action="/testChoose/bib">
-            <button type="submit" class="px-3 py-1 rounded text-white 
-              bg-indigo-600 dark:bg-indigo-700 hover:bg-indigo-700 dark:hover:bg-indigo-800">
-              Entire Bible
+
+          <!-- Version Control and Search -->
+          <form method="GET" action="/result" class="space-y-2">
+            <label for="version" class="block font-semibold">Version:</label>
+            <select name="version" id="version" class="w-full border rounded px-2 py-1 dark:bg-gray-800 dark:border-gray-600">
+              {% for v in versions %}
+              <option value="{{ v.name }}" {% if v.name == version_name %}selected{% endif %}>{{ v.name }}</option>
+              {% endfor %}
+            </select>
+
+            <input type="text" name="keyword" value="{{ keyword }}" placeholder="Search…" class="w-full border px-2 py-1 rounded dark:bg-gray-800 dark:border-gray-600" autocomplete="off" />
+            <button type="submit" class="w-full bg-blue-500 text-white px-4 py-2 rounded">Search</button>
+          </form>
+
+          <!-- Case Sensitivity Button -->
+          <form method="GET" action="/case">
+            <button type="submit" id="caseToggle" class="w-full px-4 py-2 rounded text-white 
+              {% if case_sensitive %} bg-emerald-600 dark:bg-emerald-700 {% else %} bg-teal-600 dark:bg-teal-700 {% endif %}">
+              Switch to {% if case_sensitive %}Case Insensitive{% else %}Case Sensitive{% endif %}
             </button>
           </form>
-          <form method="GET" action="/testChoose/nt">
-            <button type="submit" class="bg-cyan-500 dark:bg-cyan-700 hover:bg-cyan-600 dark:hover:bg-cyan-800 text-white px-3 py-1 rounded">
-              New Testament
-            </button>            
-          </form>
-        </div>
-        
-        <div class="grid grid-cols-2 gap-4">
-          {% for section in sections %}
-          <div>
-            <h2 class="text-lg font-semibold mb-2">
-              {% if section == 'OT1' %}Old Testament{% elif section == 'NT1' %}New Testament{% else %} {% endif %}
-            </h2>
-            <form method="GET" action="/bookChoose" class="space-y-1">
-              {% for book in books %}
-                {% if book.testament == section %}
+
+          <!-- Testament Buttons -->
+          <div class="flex justify-between">
+            <form method="GET" action="/testChoose/ot"><button type="submit" class="bg-cyan-500 text-white px-3 py-1 rounded">Old Testament</button></form>
+            <form method="GET" action="/testChoose/bib"><button type="submit" class="bg-indigo-600 text-white px-3 py-1 rounded">Entire Bible</button></form>
+            <form method="GET" action="/testChoose/nt"><button type="submit" class="bg-cyan-500 text-white px-3 py-1 rounded">New Testament</button></form>
+          </div>
+
+          <!-- Book Buttons -->
+          <div class="grid grid-cols-1 gap-4">
+            {% for testament in testaments %}
+            <div>
+              <h2 class="text-lg font-semibold mt-4 mb-2">{{ testament }}</h2>
+              <form method="GET" action="/bookChoose" class="space-y-1">
+                {% for book in books %}
+                {% if book.testament == testament %}
                 <button type="submit" name="book" value="{{ book.text }}"
                   class="w-full px-2 py-1 rounded {% if book.num in selBooks %}
                   bg-blue-900 text-white dark:bg-blue-700
-                    {% else %}
-                      bg-blue-100 text-blue-900 hover:bg-blue-200 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600
-                    {% endif %}">
-                  {{ book.text }}
-                </button>
+                  {% else %}
+                  bg-blue-100 text-blue-900 hover:bg-blue-200 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600
+                  {% endif %}">{{ book.text }}</button>
                 {% endif %}
-              {% endfor %}
-            </form>
+                {% endfor %}
+              </form>
+            </div>
+            {% endfor %}
           </div>
-          {% endfor %}
         </div>
       </div>
+    </div>
 
-      <!-- VERSES PANEL -->
-      <div class="w-1/2 p-6 overflow-y-auto">
-        <h2 class="text-xl font-semibold mb-4">
-          Verse List
-          {% if keyword %}
-            <span class="text-sm text-gray-500">({{ rows|length }} results)</span>
-          {% elif rows and rows.0.verse.0 != '!!!' %}
-            <span class="text-sm text-gray-500">({{ rows|length }} results)</span>
-          {% endif %}
-        </h2>
-        <div class="space-y-4">
-          {% for row in rows %}
-          <div class="p-4 border rounded bg-white text-black shadow 
-            dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700">
-            <div class="font-semibold mb-1">{{ row.Book }} {{ row.Chapter }}:{{ row.Versecount }}</div>
-            <p>
-              {% for part in row.verse %}
-                {% with joined=keywords|join:" " %}
-                  {% if case_sensitive %}
-                    {% if part in joined %}
-                      <mark class="bg-yellow-200 px-1 dark:bg-yellow-500 dark:text-black">{{ part }}</mark>
-                    {% else %}
-                      {{ part }}
-                    {% endif %}
-                  {% else %}
-                    {% if part|lower in joined|lower %}
-                      <mark class="bg-yellow-200 px-1 dark:bg-yellow-500 dark:text-black">{{ part }}</mark>
-                    {% else %}
-                      {{ part }}
-                    {% endif %}
-                  {% endif %}
-                {% endwith %}
-              {% endfor %}
-            </p>
-          </div>
-          {% endfor %}
+    <!-- Main Content: Verse List Only -->
+    <main class="w-full flex-grow p-6">
+      <h2 class="text-xl font-semibold mb-4">
+        Verse List
+        {% if keyword %}
+        <span class="text-sm text-gray-500">({{ rows|length }} results)</span>
+        {% elif rows and rows.0.verse.0 != '!!!' %}
+        <span class="text-sm text-gray-500">({{ rows|length }} results)</span>
+        {% endif %}
+      </h2>
+      <div class="space-y-4">
+        {% if keyword and rows|length == 0 %}
+        <p class="text-center text-gray-500 dark:text-gray-400 mt-8">No verses to show.</p>
+        {% elif rows %}
+        {% for row in rows %}
+        <div class="p-4 border rounded bg-white text-black shadow dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700">
+          <div class="font-semibold mb-1">{{ row.Book }} {{ row.Chapter }}:{{ row.Versecount }}</div>
+          <p>
+            {% for part in row.verse %}
+            {% with joined=keywords|join:" " %}
+              {% if case_sensitive %}
+              {% if part in joined %}
+              <mark class="bg-yellow-200 px-1 dark:bg-yellow-500 dark:text-black">{{ part }}</mark>
+              {% else %}
+              {{ part }}
+              {% endif %}
+              {% else %}
+              {% if part|lower in joined|lower %}
+              <mark class="bg-yellow-200 px-1 dark:bg-yellow-500 dark:text-black">{{ part }}</mark>
+              {% else %}
+              {{ part }}
+              {% endif %}
+              {% endif %}
+            {% endwith %}
+            {% endfor %}
+          </p>
         </div>
+        {% endfor %}
+        {% endif %}
       </div>
     </main>
 
-    <footer class="bg-gray-100 dark:bg-gray-800 text-center text-xs py-4">
+    <footer id="site-footer" class="bg-gray-100 dark:bg-gray-800 text-center text-xs py-4 w-full">
       <p>
-        Made with ❤️ by <a class="text-blue-600 dark:text-blue-400 underline" href="https://aaronjohnsabu1999.github.io">Aaron John Sabu</a>. 
+        Made with ❤️ by <a class="text-blue-600 dark:text-blue-400 underline" href="https://aaronjohnsabu1999.github.io">Aaron John Sabu</a>.
         <a class="text-blue-600 dark:text-blue-400 underline" href="https://github.com/aaronjohnsabu1999/mBAB">Fork on GitHub</a>
       </p>
     </footer>
 
     <script>
       document.addEventListener('DOMContentLoaded', function () {
-        const toggle = document.getElementById('darkToggle');
+        const darkToggle = document.getElementById('darkToggle');
         const label = document.getElementById('themeLabel');
         const html = document.documentElement;
+        const sidebar = document.getElementById("sidebar");
+        const site_header = document.getElementById("site-header");
+    
+        const hasKeyword = "{{ keyword|length }}" !== "0";
+        if (!hasKeyword) {
+          sidebar.classList.remove("-translate-x-full");
+        }
     
         function setTheme(mode) {
           if (mode === 'dark') {
@@ -190,10 +184,72 @@
         const savedTheme = localStorage.getItem('theme') || 'dark';
         setTheme(savedTheme);
     
-        toggle.addEventListener('click', () => {
+        darkToggle.addEventListener('click', () => {
           const newTheme = html.classList.contains('dark') ? 'light' : 'dark';
           setTheme(newTheme);
         });
+    
+        let sidebarTimeout = null;
+    
+        window.toggleSidebar = function () {
+          sidebar.classList.toggle("-translate-x-full");
+          clearTimeout(sidebarTimeout);
+          if (!sidebar.classList.contains("-translate-x-full")) {
+            sidebarTimeout = setTimeout(() => {
+              sidebar.classList.add("-translate-x-full");
+            }, 15000);
+          }
+        };
+    
+        document.addEventListener('click', function (event) {
+          const clickedInsideSidebar = sidebar.contains(event.target);
+          const clickedSidebarToggle = event.target.closest('[onclick="toggleSidebar()"]');
+    
+          if (!clickedInsideSidebar && !clickedSidebarToggle) {
+            if (!sidebar.classList.contains("-translate-x-full")) {
+              sidebar.classList.add("-translate-x-full");
+              clearTimeout(sidebarTimeout);
+            }
+          }
+        });
+    
+        // Dynamic header offset
+        const updateSidebarTop = () => {
+          const height = site_header.offsetHeight;
+          sidebar.style.top = height + 'px';
+          const scrollContainer = document.getElementById('sidebar-scroll-container');
+          scrollContainer.style.height = `calc(100vh - ${height}px)`;
+        };
+    
+        updateSidebarTop();
+        window.addEventListener('resize', updateSidebarTop);
+
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        sidebar.addEventListener('touchstart', (e) => {
+          touchStartX = e.changedTouches[0].screenX;
+        });
+
+        sidebar.addEventListener('touchend', (e) => {
+          touchEndX = e.changedTouches[0].screenX;
+          handleSwipe();
+        });
+
+        function handleSwipe() {
+          const swipeDistance = touchEndX - touchStartX;
+
+          // Swiping left (negative) or right (positive)
+          if (swipeDistance < -50) {
+            // Swipe left – ignore
+            return;
+          }
+
+          if (swipeDistance > 50 && !sidebar.classList.contains('-translate-x-full')) {
+            sidebar.classList.add('-translate-x-full');
+            clearTimeout(sidebarTimeout);
+          }
+        }
       });
     </script>
   </body>

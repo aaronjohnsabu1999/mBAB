@@ -1,14 +1,33 @@
+# Use Bash for Git Bash compatibility
 SHELL := /bin/bash
 
-run:
-	source venv/bin/activate && python app.py
+.PHONY: run migrate makemigrations createsuperuser install venv clean
 
-install: venv
-	source venv/bin/activate && make requirements
+# Create virtual environment
+venv:
+	python -m venv venv
 
-venv: 
-	sudo apt install virtualenv
-	virtualenv venv
-
-requirements:
+# Install dependencies (assumes venv is activated manually)
+install:
 	pip install -r requirements.txt
+
+# Run the Django development server (default: 127.0.0.1:8000; override with HOST and PORT)
+run:
+	python manage.py runserver $${HOST:-127.0.0.1}:$${PORT:-8000}
+
+# Run database migrations
+migrate:
+	python manage.py migrate
+
+# Create new migrations
+makemigrations:
+	python manage.py makemigrations
+
+# Create a superuser
+createsuperuser:
+	python manage.py createsuperuser
+
+# Clean up compiled Python files
+clean:
+	-find . -name '*.pyc' -exec rm -f {} +
+	-find . -name '__pycache__' -exec rm -rf {} +

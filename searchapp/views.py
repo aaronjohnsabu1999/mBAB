@@ -1,7 +1,7 @@
 import re, sqlite3
 from django.shortcuts import render
 from django.http import HttpResponse
-from .bibledata import sections, testament_map, books, versions, sql_select, sql_order
+from .bibledata import testaments, testament_map, books, versions, sql_select, sql_order
 
 
 def dict_factory(cursor, row):
@@ -132,7 +132,7 @@ def build_context(
     if keywords is None:
         keywords = input_words.split()
     return {
-        "sections": sections,
+        "testaments": testaments,
         "books": books,
         "versions": versions,
         "rows": rows,

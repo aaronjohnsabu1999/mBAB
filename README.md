@@ -15,18 +15,17 @@
 
 ## Introduction
 
-This web application allows users to search for word sequences—either case-sensitive or case-insensitive—across a user-specified set of Bible books.  
+This web application allows users to search for word sequences—case-sensitive or case-insensitive—across a custom selection of Bible books.
 
 **Features**
 - Multi-book and multi-version search
-- Case-sensitive or insensitive toggling
-- Custom book selection with OT/NT toggles
-- Clean, dark-mode friendly UI
-- Logical AND (+) and OR (,) search operators
+- Logical AND (+) and OR (,) search syntax
+- Case sensitivity toggle
+- Responsive UI with collapsible book selector
 
 Hosted live at [aaronjs.pythonanywhere.com](http://aaronjs.pythonanywhere.com/).
 
-Originally built with Flask, **rebuilt using Django** for better scalability, maintainability, and extensibility.
+Originally built with Flask, now rebuilt using Django for better scalability and maintainability.
 
 ![A Search Example](./mBAB.png "Searching for 'spirit' and 'holy' and 'christ' within the non-Pauline New Testament books in the English Standard Version English Bible")
 
@@ -46,6 +45,7 @@ This guide will help you set up and run the Multi-Book Advanced Bible Search (mB
 - Python 3.11 or higher
 - `pip` and `venv` (usually bundled with Python)
 - A Unix-like shell (Linux/macOS or WSL on Windows recommended)
+- `make` (optional but recommended for easier setup and management)
 
 ### Installation Steps
 
@@ -55,19 +55,19 @@ git clone https://github.com/aaronjohnsabu1999/mBAB.git ~/mBAB
 cd ~/mBAB
 
 # Set up a virtual environment
-python3 -m venv venv
+make venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install dependencies
-pip install -r requirements.txt
+make install
 
-# Apply Django migrations (none required yet, but necessary for Django setup)
-python manage.py migrate
+# Apply Django migrations
+make migrate
 ```
 
 ### Setting Up the Bible Databases
 To keep the main repo lightweight, the SQLite Bible databases are hosted separately.
-Download or clone them from Bible Databases and place the .db files inside a folder named databases/ at the root of this project.
+Download or clone them from Bible Databases and place the `.db` files inside a folder named `databases/` at the root of this project.
 
 ```bash
 # Clone the database repository
@@ -79,15 +79,35 @@ cp ~/bible-databases/DB/*.db ~/mBAB/databases/
 ```
 
 ### Running the Application
-Start the Django development server:
+Start the Django development server using make:
+
+#### Default Localhost Run
 
 ```bash
-# Run the application locally
-python manage.py runserver
+make run
+```
+This will run the server at `127.0.0.1:8000`. Open your browser and navigate to [http://localhost:8000/](http://localhost:8000/).
+
+#### Access on a Local Network (e.g., from your phone)
+
+Override the host and/or port by passing variables:
+
+```bash
+make run HOST=0.0.0.0            # Binds to all interfaces
+make run HOST=0.0.0.0 PORT=8080  # Custom port
 ```
 
-Then open your browser and navigate to: [http://localhost:8000/](http://localhost:8000/).  
-You should see the mBAB interface ready for searches and exploration.
+Then visit in your mobile browser: `http://<your-computer-local-ip>:8000/`. To find your local IP:
+
+```bash
+# On Linux/macOS
+hostname -I
+
+# On Windows
+ipconfig
+```
+
+Note: Ensure both devices are on the same Wi-Fi and that your firewall allows access on the selected port.
 
 ## Contributors
 
@@ -97,11 +117,11 @@ The searchable Bible content is based on SQL databases originally published by [
 
 ## Roadmap & Potential Contributions
 
-- [ ] Make the UI fully responsive for mobile screens
+- [x] Make the UI fully responsive for mobile screens
 - [ ] Support copyrighted Bible versions (NIV, NLT, BSI, etc.)
 - [ ] Add pagination for search results
 - [ ] Enable logical grouping and parentheses in search syntax
-- [ ] Move controls into a collapsible sidebar
+- [x] Move controls into a collapsible sidebar
 - [ ] Improve styling with more theme options
 - [ ] Add optional user accounts with saved history
 - [ ] Subdivide books by genre (Law, Gospels, etc.)

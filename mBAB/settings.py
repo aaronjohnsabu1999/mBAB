@@ -5,12 +5,13 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "secret-key"  # replace later for production
+SECRET_KEY = "mBABonPython"  # replace later for production
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []  # or ['*'] if testing
+# ALLOWED_HOSTS = ["127.0.0.1", "aaronjs.pythonanywhere.com"] # production
+ALLOWED_HOSTS = ['*'] # testing
 
 # Application definition
 INSTALLED_APPS = [
