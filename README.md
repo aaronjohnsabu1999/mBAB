@@ -120,7 +120,7 @@ The searchable Bible content is based on SQL databases originally published by [
 - [x] Make the UI fully responsive for mobile screens
 - [ ] Support copyrighted Bible versions (NIV, NLT, BSI, etc.)
 - [ ] Add pagination for search results
-- [ ] Enable logical grouping and parentheses in search syntax
+- [x] Enable logical grouping and parentheses in search syntax
 - [x] Move controls into a collapsible sidebar
 - [ ] Improve styling with more theme options
 - [ ] Add optional user accounts with saved history
