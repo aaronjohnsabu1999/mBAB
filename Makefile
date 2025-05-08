@@ -1,7 +1,7 @@
 # Use Bash for Git Bash compatibility
 SHELL := /bin/bash
 
-.PHONY: run migrate makemigrations createsuperuser install venv clean
+.PHONY: run migrate makemigrations createsuperuser collectstatic install venv clean
 
 # Create virtual environment
 venv:
@@ -22,6 +22,10 @@ migrate:
 # Create new migrations
 makemigrations:
 	python manage.py makemigrations
+
+# Collect static files into STATIC_ROOT
+collectstatic:
+	python manage.py collectstatic --noinput
 
 # Create a superuser
 createsuperuser:
