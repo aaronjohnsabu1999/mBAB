@@ -13,6 +13,63 @@
       };
     </script>
 
+    <style>
+      html.dark .toggle-book.selected {
+        background-color: #1e40af !important; /* Tailwind blue-800 */
+        color: white !important;
+      }
+
+      html.dark .toggle-book.deselected {
+        background-color: #334155 !important; /* Tailwind slate-700 */
+        color: #cbd5e1 !important; /* slate-300 */
+        border: 1px dashed #64748b; /* slate-500 */
+      }
+    
+      html[data-theme='theme-contrast'] {
+        background-color: #000 !important;
+        color: #fff !important;
+        font-weight: bold;
+      }
+
+      html[data-theme='theme-contrast'] a {
+        color: #0ff !important;
+        text-decoration: underline;
+      }
+
+      html[data-theme='theme-contrast'] button,
+      html[data-theme='theme-contrast'] select,
+      html[data-theme='theme-contrast'] input,
+      html[data-theme='theme-contrast'] textarea {
+        background-color: #fff !important;
+        color: #000 !important;
+        border: 2px solid #000 !important;
+      }
+
+      .toggle-book.selected {
+        background-color: #1d4ed8 !important; /* Tailwind blue-700 */
+        color: white !important;
+        border: 1px solid transparent;
+      }
+
+      .toggle-book.deselected {
+        background-color: #dbeafe !important; /* Tailwind blue-100 */
+        color: #1e3a8a !important; /* Tailwind blue-900 */
+        border: 1px dashed #60a5fa;
+      }
+
+      html[data-theme='theme-contrast'] .toggle-book.selected {
+        background-color: #fff !important;
+        color: #000 !important;
+        border: 2px solid #0ff !important;
+      }
+
+      html[data-theme='theme-contrast'] .toggle-book.deselected {
+        background-color: #222 !important;
+        color: #ccc !important;
+        border: 2px dashed #999 !important;
+      }
+    </style>
+
     <link rel="icon" href="{% static 'searchapp/images/favicon.ico' %}" />
     <style>
       html, body {
@@ -34,9 +91,16 @@
           <button onclick="toggleSidebar()" class="bg-indigo-600 text-white px-4 py-1 rounded text-sm">
             ☰ Filters
           </button>
-          <button type="button" id="darkToggle" class="text-xs bg-black bg-opacity-30 px-2 py-1 rounded border border-white hover:bg-opacity-50">
-            <span id="themeLabel"></span>
-          </button>
+          <div class="relative inline-block text-left">
+            <button id="themeDropdownButton" class="text-xs bg-black bg-opacity-30 px-2 py-1 rounded border border-white hover:bg-opacity-50">
+              <span id="themeLabel">Theme</span>
+            </button>
+            <div id="themeMenu" class="hidden absolute mt-2 w-40 bg-white dark:bg-gray-800 shadow-lg rounded z-50 text-sm">
+              <button class="block w-full text-left px-4 py-2 bg-[#f9f0e0] text-black hover:bg-[#f0e6d4]" data-theme="light">☀️ Light</button>
+              <button class="block w-full text-left px-4 py-2 bg-gray-900 text-white hover:bg-gray-800" data-theme="dark">🌙 Dark</button>
+              <button class="block w-full text-left px-4 py-2 bg-black text-yellow-300 font-bold hover:bg-yellow-100 hover:text-black" data-theme="theme-contrast">⚫ High Contrast</button>
+            </div>
+          </div>
         </div>
       </div>
     </header>
@@ -103,12 +167,7 @@
                   {% for book in books %}
                   {% if book.testament == testament %}
                   <button type="button" onclick="toggleBook({{ book.id }}, this)"
-                    class="w-full px-2 py-1 rounded toggle-book font-medium
-                    {% if book.num in selBooks %}
-                      bg-blue-900 text-white dark:bg-blue-700
-                    {% else %}
-                      bg-blue-100 text-blue-900 hover:bg-blue-200 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600
-                    {% endif %}">
+                    class="w-full px-2 py-1 rounded toggle-book font-medium {% if book.num in selBooks %}selected{% else %}deselected{% endif %}">
                     {{ book.text }}
                   </button>
                   {% endif %}
@@ -163,31 +222,50 @@
         const html = document.documentElement;
         const sidebar = document.getElementById("sidebar");
         const site_header = document.getElementById("site-header");
+        const themeBtn = document.getElementById("themeDropdownButton");
+        const themeMenu = document.getElementById("themeMenu");
     
         const hasKeyword = "{{ keyword|length }}" !== "0";
         if (!hasKeyword) {
           sidebar.classList.remove("-translate-x-full");
         }
     
-        function setTheme(mode) {
-          if (mode === 'dark') {
-            html.classList.add('dark');
-            localStorage.setItem('theme', 'dark');
-            label.innerHTML = '<span class="text-blue-400">☀️</span> Switch to Light Mode';
-          } else {
-            html.classList.remove('dark');
-            localStorage.setItem('theme', 'light');
-            label.innerHTML = '<span class="text-yellow-400">🌙</span> Switch to Dark Mode';
-          }
-        }
-    
-        const savedTheme = localStorage.getItem('theme') || 'dark';
-        setTheme(savedTheme);
-    
-        darkToggle.addEventListener('click', () => {
-          const newTheme = html.classList.contains('dark') ? 'light' : 'dark';
-          setTheme(newTheme);
+        // Open/close dropdown
+        themeBtn.addEventListener("click", () => {
+          themeMenu.classList.toggle("hidden");
         });
+
+        // Handle theme button clicks
+        themeMenu.querySelectorAll("button[data-theme]").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const theme = btn.getAttribute("data-theme");
+            html.setAttribute("data-theme", theme);
+            if (theme === 'dark') {
+              html.classList.add('dark');
+            } else {
+              html.classList.remove('dark');
+            }
+            localStorage.setItem("theme", theme);
+            themeLabel.innerText = btn.innerText;
+            themeMenu.classList.add("hidden");
+          });
+        });
+
+        // Apply saved or default theme
+        const saved = localStorage.getItem("theme") || "dark";
+        html.setAttribute("data-theme", saved);
+        if (saved === 'dark') html.classList.add("dark");
+        else html.classList.remove("dark");
+        const initialBtn = themeMenu.querySelector(`button[data-theme="${saved}"]`);
+        if (initialBtn) themeLabel.innerText = initialBtn.innerText;
+    
+        <!-- const savedTheme = localStorage.getItem('theme') || 'dark'; -->
+        <!-- setTheme(savedTheme); -->
+    
+        <!-- darkToggle.addEventListener('click', () => { -->
+          <!-- const newTheme = html.classList.contains('dark') ? 'light' : 'dark'; -->
+          <!-- setTheme(newTheme); -->
+        <!-- }); -->
     
         let sidebarTimeout = null;
     
@@ -252,9 +330,10 @@
         }
 
         document.querySelectorAll('.toggle-book').forEach((btn, idx) => {
-          if (btn.classList.contains("bg-blue-900")) {
-            bookBits[idx] = 1;
-          }
+          const isSelected = btn.classList.contains("selected");
+          bookBits[idx] = isSelected ? 1 : 0;
+          btn.classList.remove("selected", "deselected");
+          btn.classList.add(isSelected ? "selected" : "deselected");
         });
       });
     </script>
@@ -271,23 +350,14 @@
           bib: [...Array(66).keys()]
         };
         const indices = sets[key];
-
-        // Check whether all relevant books are currently selected
         const allSelected = indices.every(idx => bookBits[idx] === 1);
         const newValue = allSelected ? 0 : 1;
 
         document.querySelectorAll('.toggle-book').forEach((btn, idx) => {
           if (!indices.includes(idx)) return;
-
           bookBits[idx] = newValue;
-
-          if (newValue === 1) {
-            btn.classList.add("bg-blue-900", "text-white", "dark:bg-blue-700");
-            btn.classList.remove("bg-blue-100", "text-blue-900", "hover:bg-blue-200", "dark:bg-gray-700", "dark:text-white", "dark:hover:bg-gray-600");
-          } else {
-            btn.classList.remove("bg-blue-900", "text-white", "dark:bg-blue-700");
-            btn.classList.add("bg-blue-100", "text-blue-900", "hover:bg-blue-200", "dark:bg-gray-700", "dark:text-white", "dark:hover:bg-gray-600");
-          }
+          btn.classList.remove("selected", "deselected");
+          btn.classList.add(newValue === 1 ? "selected" : "deselected");
         });
       }
 
@@ -304,14 +374,9 @@
 
       function toggleBook(index, button) {
         bookBits[index] ^= 1;
-        button.classList.toggle("bg-blue-900");
-        button.classList.toggle("text-white");
-        button.classList.toggle("dark:bg-blue-700");
-        button.classList.toggle("bg-blue-100");
-        button.classList.toggle("text-blue-900");
-        button.classList.toggle("hover:bg-blue-200");
-        button.classList.toggle("dark:bg-gray-700");
-        button.classList.toggle("dark:hover:bg-gray-600");
+        const selected = bookBits[index] === 1;
+        button.classList.remove("selected", "deselected");
+        button.classList.add(selected ? "selected" : "deselected");
       }
 
       document.getElementById("searchForm").addEventListener("submit", function () {
