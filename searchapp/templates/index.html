@@ -15,14 +15,14 @@
 
     <style>
       html.dark .toggle-book.selected {
-        background-color: #1e40af !important; /* Tailwind blue-800 */
+        background-color: #1e40af !important;
         color: white !important;
       }
 
       html.dark .toggle-book.deselected {
-        background-color: #334155 !important; /* Tailwind slate-700 */
-        color: #cbd5e1 !important; /* slate-300 */
-        border: 1px dashed #64748b; /* slate-500 */
+        background-color: #334155 !important;
+        color: #cbd5e1 !important;
+        border: 1px dashed #64748b;
       }
     
       html[data-theme='theme-contrast'] {
@@ -46,14 +46,14 @@
       }
 
       .toggle-book.selected {
-        background-color: #1d4ed8 !important; /* Tailwind blue-700 */
+        background-color: #1d4ed8 !important;
         color: white !important;
         border: 1px solid transparent;
       }
 
       .toggle-book.deselected {
-        background-color: #dbeafe !important; /* Tailwind blue-100 */
-        color: #1e3a8a !important; /* Tailwind blue-900 */
+        background-color: #dbeafe !important;
+        color: #1e3a8a !important;
         border: 1px dashed #60a5fa;
       }
 
@@ -68,21 +68,75 @@
         color: #ccc !important;
         border: 2px dashed #999 !important;
       }
-    </style>
 
-    <link rel="icon" href="{% static 'searchapp/images/mBAB_favicon.ico' %}" />
-    <style>
       html, body {
         overflow-x: hidden;
         transition: background-color 0.5s, color 0.5s;
       }
     </style>
+    <style>
+      #sidebar {
+        transition: transform 0.5s ease-in-out, background-color 0.4s ease;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+        display: flex;
+        flex-direction: row;
+        position: fixed;
+        left: 0;
+        height: 100vh;
+      }
+      #sidebar-wrapper {
+        transition: transform 0.5s ease-in-out, background-color 0.4s ease;
+      }
+
+      #sidebar-scroll-container {
+        transition: transform 0.4s ease-in-out, padding 0.4s ease;
+        padding-right: 12px;
+        flex-grow: 1;
+        overflow-y: auto;
+      }
+
+      #sidebar-resizer {
+        top: 0;
+        right: 0;
+        height: 100%;
+        z-index: 10;
+        width: 6px;
+        cursor: col-resize;
+        position: absolute;
+        background-color: rgba(156, 163, 175, 0.5);
+      }
+    </style>
+    <style>
+      #sidebar-scroll-container::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+
+      #sidebar-scroll-container::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, rgba(175,195,255,0.6) 0%, rgba(100,150,255,0.6) 100%);
+        border-radius: 6px;
+        border: 2px solid transparent;
+        background-clip: padding-box;
+      }
+
+      #sidebar-scroll-container::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(180deg, rgba(50,100,255,0.7) 0%, rgba(30,90,255,0.7) 100%);
+      }
+
+      #sidebar-scroll-container::-webkit-scrollbar-track {
+        background: linear-gradient(180deg, rgba(146,130,199,0.3) 0%, rgba(120,100,190,0.3) 100%);
+      }
+
+      #sidebar-scroll-container::-webkit-scrollbar-track:hover {
+        background: linear-gradient(180deg, rgba(127,96,198,0.4) 0%, rgba(100,80,180,0.4) 100%);
+      }
+    </style>
+    <link rel="icon" href="{% static 'searchapp/images/mBAB_favicon.ico' %}" />
   </head>
 
   {% include "includes/gtag.html" %}
 
   <body class="flex flex-col min-h-screen bg-white text-black dark:bg-gray-900 dark:text-white">
-    <!-- HEADER -->
     <header id="site-header" class="bg-indigo-700 dark:bg-indigo-900 text-white py-6 shadow-md relative z-50">
       <div class="w-full px-4 text-center">
         <h1 class="text-3xl font-bold">Multi-Book Advanced Bible Search</h1>
@@ -105,23 +159,19 @@
       </div>
     </header>
 
-    <!-- Sidebar -->
     <div id="sidebar-wrapper" class="relative z-40">
       <div id="sidebar"
-          class="fixed left-0 w-full md:w-[420px] bg-white dark:bg-gray-900 shadow-xl transform -translate-x-full transition-transform duration-300 overflow-hidden">
-        <!-- Scrollable container -->
+          class="flex flex-row left-0 w-full md:w-[420px] bg-white dark:bg-gray-900 shadow-xl transform -translate-x-full transition-transform duration-300 overflow-hidden">
         <div id="sidebar-scroll-container" class="h-full overflow-y-auto p-4 space-y-4">
           <form id="searchForm" method="GET" action="/result" class="space-y-4">
             <div class="flex justify-between items-center mb-2">
               <h2 class="text-lg font-bold">Filters</h2>
             </div>
     
-            <!-- Reset -->
             <div>
               <a href="/" class="block bg-red-600 hover:bg-red-700 text-white w-full px-4 py-2 rounded text-center font-semibold">Reset Filters</a>
             </div>
     
-            <!-- Version -->
             <div>
               <label for="version" class="block font-semibold text-gray-700 dark:text-gray-300">Version:</label>
               <select name="version" id="version" class="w-full border rounded px-2 py-1 bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white">
@@ -131,7 +181,6 @@
               </select>
             </div>
     
-            <!-- Case -->
             <button type="button" id="caseToggle"
               class="w-full px-4 py-2 rounded font-semibold text-white transition-colors duration-150
                 {% if case_sensitive %} bg-emerald-800 hover:bg-emerald-900 {% else %} bg-teal-800 hover:bg-teal-900 {% endif %}">
@@ -139,26 +188,17 @@
             </button>
             <input type="hidden" name="case" id="caseInput" value="{% if case_sensitive %}True{% else %}False{% endif %}" />
     
-            <!-- Keyword -->
             <input type="text" name="keyword" value="{{ keyword }}" placeholder="Search for keywords" class="w-full border px-2 py-1 rounded bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white" autocomplete="on" />
             <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-semibold">Search</button>
 
-            <!-- Hidden books field -->
             <input type="hidden" name="books" id="booksField" />
     
-            <!-- Testament Shortcuts -->
-            <!-- <div class="flex justify-between">
-              <button type="button" onclick="toggleTestament('ot')" class="bg-cyan-500 text-white px-3 py-2 rounded w-full">Old Testament</button>
-              <button type="button" onclick="toggleTestament('bib')" class="bg-indigo-600 text-white px-3 py-2 rounded w-full">Entire Bible</button>
-              <button type="button" onclick="toggleTestament('nt')" class="bg-cyan-500 text-white px-3 py-2 rounded w-full">New Testament</button>
-            </div> -->
             <div class="grid grid-cols-3 gap-2">
               <button type="button" onclick="toggleTestament('ot')" class="bg-cyan-700 hover:bg-cyan-800 text-white font-semibold px-3 py-2 rounded">Old Testament</button>
               <button type="button" onclick="toggleTestament('bib')" class="bg-violet-600 hover:bg-violet-700 text-white font-semibold px-3 py-2 rounded">Entire Bible</button>
               <button type="button" onclick="toggleTestament('nt')" class="bg-cyan-700 hover:bg-cyan-800 text-white font-semibold px-3 py-2 rounded">New Testament</button>
             </div> 
 
-            <!-- Book Buttons -->
             <div class="grid grid-cols-1 gap-4">
               {% for testament in testaments %}
               <div>
@@ -179,10 +219,10 @@
 
           </form>    
         </div>
+        <div id="sidebar-resizer" class="hidden md:block"></div>
       </div>
     </div>
 
-    <!-- Main Content: Verse List Only -->
     <main class="w-full flex-grow p-6">
       <h2 class="text-xl font-semibold mb-4">
         Verse List
@@ -216,172 +256,153 @@
     </footer>
 
     <script>
-      document.addEventListener('DOMContentLoaded', function () {
-        const darkToggle = document.getElementById('darkToggle');
-        const label = document.getElementById('themeLabel');
+      document.addEventListener('DOMContentLoaded', () => {
         const html = document.documentElement;
         const sidebar = document.getElementById("sidebar");
-        const site_header = document.getElementById("site-header");
+        const resizer = document.getElementById("sidebar-resizer");
         const themeBtn = document.getElementById("themeDropdownButton");
         const themeMenu = document.getElementById("themeMenu");
-    
-        const hasKeyword = "{{ keyword|length }}" !== "0";
-        if (!hasKeyword) {
-          sidebar.classList.remove("-translate-x-full");
-        }
-    
-        // Open/close dropdown
-        themeBtn.addEventListener("click", () => {
-          themeMenu.classList.toggle("hidden");
+        const themeLabel = document.getElementById("themeLabel");
+        const caseToggle = document.getElementById("caseToggle");
+        const caseInput = document.getElementById("caseInput");
+        const booksField = document.getElementById("booksField");
+        const siteHeader = document.getElementById("site-header");
+        const searchForm = document.getElementById("searchForm");
+        const bookBits = new Array(66).fill(0);
+        let isResizing = false;
+
+        // Restore saved theme
+        const saved = localStorage.getItem("theme") || "dark";
+        html.setAttribute("data-theme", saved);
+        html.classList.toggle("dark", saved === "dark");
+        const initialBtn = themeMenu.querySelector(`[data-theme="${saved}"]`);
+        if (initialBtn) themeLabel.innerText = initialBtn.innerText;
+
+        // Theme dropdown toggle
+        themeBtn.addEventListener('click', e => {
+          e.stopPropagation();
+          themeMenu.classList.toggle('hidden');
         });
 
-        // Handle theme button clicks
-        themeMenu.querySelectorAll("button[data-theme]").forEach(btn => {
-          btn.addEventListener("click", () => {
-            const theme = btn.getAttribute("data-theme");
+        // Theme selection
+        themeMenu.querySelectorAll('button[data-theme]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const theme = btn.dataset.theme;
             html.setAttribute("data-theme", theme);
-            if (theme === 'dark') {
-              html.classList.add('dark');
-            } else {
-              html.classList.remove('dark');
-            }
+            html.classList.toggle("dark", theme === "dark");
             localStorage.setItem("theme", theme);
             themeLabel.innerText = btn.innerText;
             themeMenu.classList.add("hidden");
           });
         });
 
-        // Apply saved or default theme
-        const saved = localStorage.getItem("theme") || "dark";
-        html.setAttribute("data-theme", saved);
-        if (saved === 'dark') html.classList.add("dark");
-        else html.classList.remove("dark");
-        const initialBtn = themeMenu.querySelector(`button[data-theme="${saved}"]`);
-        if (initialBtn) themeLabel.innerText = initialBtn.innerText;
-    
-        <!-- const savedTheme = localStorage.getItem('theme') || 'dark'; -->
-        <!-- setTheme(savedTheme); -->
-    
-        <!-- darkToggle.addEventListener('click', () => { -->
-          <!-- const newTheme = html.classList.contains('dark') ? 'light' : 'dark'; -->
-          <!-- setTheme(newTheme); -->
-        <!-- }); -->
-    
-        let sidebarTimeout = null;
-    
-        window.toggleSidebar = function () {
-          sidebar.classList.toggle("-translate-x-full");
-          clearTimeout(sidebarTimeout);
-          if (!sidebar.classList.contains("-translate-x-full")) {
-            sidebarTimeout = setTimeout(() => {
-              sidebar.classList.add("-translate-x-full");
-            }, 15000);
+        // Click outside to close sidebar & theme menu
+        document.addEventListener('click', e => {
+          const inSidebar = sidebar.contains(e.target);
+          const inThemeMenu = themeMenu.contains(e.target) || themeBtn.contains(e.target);
+          const toggledBy = e.target.closest('[onclick="toggleSidebar()"]');
+
+          if (!inSidebar && !toggledBy) {
+            sidebar.classList.add("-translate-x-full");
           }
-        };
-    
-        document.addEventListener('click', function (event) {
-          const clickedInsideSidebar = sidebar.contains(event.target);
-          const clickedSidebarToggle = event.target.closest('[onclick="toggleSidebar()"]');
-    
-          if (!clickedInsideSidebar && !clickedSidebarToggle) {
-            if (!sidebar.classList.contains("-translate-x-full")) {
-              sidebar.classList.add("-translate-x-full");
-              clearTimeout(sidebarTimeout);
-            }
+          if (!inThemeMenu) {
+            themeMenu.classList.add("hidden");
           }
         });
-    
-        // Dynamic header offset
-        const updateSidebarTop = () => {
-          const height = site_header.offsetHeight;
-          sidebar.style.top = height + 'px';
-          const scrollContainer = document.getElementById('sidebar-scroll-container');
-          scrollContainer.style.height = `calc(100vh - ${height}px)`;
+
+        // Sidebar auto show on initial load
+        if ("{{ keyword|length }}" === "0") sidebar.classList.remove("-translate-x-full");
+
+        // Sidebar toggle button
+        window.toggleSidebar = function () {
+          sidebar.classList.toggle("-translate-x-full");
         };
-    
+
+        // Sidebar swipe support
+        let touchStartX = 0;
+        sidebar.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX);
+        sidebar.addEventListener('touchend', e => {
+          const swipe = e.changedTouches[0].screenX - touchStartX;
+          if (swipe > 50 && !sidebar.classList.contains("-translate-x-full")) {
+            sidebar.classList.add("-translate-x-full");
+          }
+        });
+
+        // Dynamic top offset for sidebar
+        const updateSidebarTop = () => {
+          const height = siteHeader.offsetHeight;
+          sidebar.style.top = height + 'px';
+          document.getElementById('sidebar-scroll-container').style.height = `calc(100vh - ${height}px)`;
+        };
         updateSidebarTop();
         window.addEventListener('resize', updateSidebarTop);
 
-        let touchStartX = 0;
-        let touchEndX = 0;
-
-        sidebar.addEventListener('touchstart', (e) => {
-          touchStartX = e.changedTouches[0].screenX;
+        // Sidebar resizer drag behavior
+        resizer.addEventListener('mousedown', e => {
+          if (window.innerWidth >= 768) {
+            isResizing = true;
+            document.body.style.userSelect = 'none';
+          }
         });
 
-        sidebar.addEventListener('touchend', (e) => {
-          touchEndX = e.changedTouches[0].screenX;
-          handleSwipe();
+        document.addEventListener('mousemove', e => {
+          if (isResizing) {
+            const newWidth = Math.min(Math.max(e.clientX, 350), window.innerWidth);
+            sidebar.style.width = `${newWidth}px`;
+          }
         });
 
-        function handleSwipe() {
-          const swipeDistance = touchEndX - touchStartX;
+        document.addEventListener('mouseup', () => {
+          isResizing = false;
+          document.body.style.userSelect = '';
+        });
 
-          // Swiping left (negative) or right (positive)
-          if (swipeDistance < -50) {
-            // Swipe left – ignore
-            return;
-          }
+        // Case sensitivity toggle
+        caseToggle.addEventListener('click', () => {
+          const isNowTrue = caseInput.value === "False";
+          caseInput.value = isNowTrue ? "True" : "False";
+          caseToggle.textContent = isNowTrue ? "Switch to Case Insensitive" : "Switch to Case Sensitive";
+          caseToggle.classList.toggle("bg-emerald-600", isNowTrue);
+          caseToggle.classList.toggle("dark:bg-emerald-700", isNowTrue);
+          caseToggle.classList.toggle("bg-teal-600", !isNowTrue);
+          caseToggle.classList.toggle("dark:bg-teal-700", !isNowTrue);
+        });
 
-          if (swipeDistance > 50 && !sidebar.classList.contains('-translate-x-full')) {
-            sidebar.classList.add('-translate-x-full');
-            clearTimeout(sidebarTimeout);
-          }
-        }
-
+        // Initialize and wire up book selection buttons
         document.querySelectorAll('.toggle-book').forEach((btn, idx) => {
           const isSelected = btn.classList.contains("selected");
           bookBits[idx] = isSelected ? 1 : 0;
-          btn.classList.remove("selected", "deselected");
-          btn.classList.add(isSelected ? "selected" : "deselected");
+          btn.addEventListener('click', () => {
+            bookBits[idx] ^= 1;
+            btn.classList.toggle("selected", bookBits[idx]);
+            btn.classList.toggle("deselected", !bookBits[idx]);
+          });
         });
-      });
-    </script>
-    <script>
-      const bookBits = new Array(66).fill(0);
-      const booksField = document.getElementById('booksField');
-      const caseInput = document.getElementById('caseInput');
-      const caseToggle = document.getElementById('caseToggle');
-      
-      function toggleTestament(key) {
-        const sets = {
-          ot: [...Array(39).keys()],
-          nt: [...Array(66).keys()].slice(39),
-          bib: [...Array(66).keys()]
+
+        // Book filter shortcuts
+        window.toggleTestament = key => {
+          const sets = {
+            ot: [...Array(39).keys()],
+            nt: [...Array(66).keys()].slice(39),
+            bib: [...Array(66).keys()],
+          };
+          const indices = sets[key];
+          const allSelected = indices.every(i => bookBits[i] === 1);
+          const newValue = allSelected ? 0 : 1;
+
+          document.querySelectorAll('.toggle-book').forEach((btn, idx) => {
+            if (!indices.includes(idx)) return;
+            bookBits[idx] = newValue;
+            btn.classList.toggle("selected", newValue === 1);
+            btn.classList.toggle("deselected", newValue === 0);
+          });
         };
-        const indices = sets[key];
-        const allSelected = indices.every(idx => bookBits[idx] === 1);
-        const newValue = allSelected ? 0 : 1;
 
-        document.querySelectorAll('.toggle-book').forEach((btn, idx) => {
-          if (!indices.includes(idx)) return;
-          bookBits[idx] = newValue;
-          btn.classList.remove("selected", "deselected");
-          btn.classList.add(newValue === 1 ? "selected" : "deselected");
+        // Encode book bits to hidden field on submit
+        searchForm.addEventListener('submit', () => {
+          const bits = [...bookBits].reverse().join('');
+          booksField.value = BigInt("0b" + bits).toString();
         });
-      }
-
-      caseToggle.addEventListener('click', () => {
-        const isNowTrue = caseInput.value === "False";
-        caseInput.value = isNowTrue ? "True" : "False";
-        caseToggle.textContent = isNowTrue ? "Switch to Case Insensitive" : "Switch to Case Sensitive";
-
-        caseToggle.classList.toggle("bg-emerald-600", isNowTrue);
-        caseToggle.classList.toggle("dark:bg-emerald-700", isNowTrue);
-        caseToggle.classList.toggle("bg-teal-600", !isNowTrue);
-        caseToggle.classList.toggle("dark:bg-teal-700", !isNowTrue);
-      });
-
-      function toggleBook(index, button) {
-        bookBits[index] ^= 1;
-        const selected = bookBits[index] === 1;
-        button.classList.remove("selected", "deselected");
-        button.classList.add(selected ? "selected" : "deselected");
-      }
-
-      document.getElementById("searchForm").addEventListener("submit", function () {
-        const bits = [...bookBits].reverse().join(""); // Genesis = LSB
-        booksField.value = BigInt("0b" + bits).toString();
       });
     </script>
   </body>

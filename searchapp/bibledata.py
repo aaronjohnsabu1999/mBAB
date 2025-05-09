@@ -6,6 +6,19 @@ testament_map = {
     "bib": ["Old Testament", "New Testament"],
 }
 
+book_sections = {
+    "Law": [0, 1, 2, 3, 4],
+    "History": [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+    "Poetry": [17, 18, 19, 20, 21, 22],
+    "Major Prophets": [23, 24, 25, 26, 27],
+    "Minor Prophets": [28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38],
+    "Gospels": [39, 40, 41, 42],
+    "History (Acts)": [43],
+    "Pauline Epistles": [44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56],
+    "General Epistles": [57, 58, 59, 60, 61, 62, 63, 64],
+    "Prophecy (Revelation)": [65],
+}
+
 versions = [
     {
         "name": "ESV",

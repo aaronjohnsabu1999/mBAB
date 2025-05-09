@@ -1,74 +1,59 @@
 import re, sqlite3
 from django.shortcuts import render
 from .bibledata import testaments, testament_map, books, versions, sql_select, sql_order
+
 try:
     from .gtag_secret import GTAG_ID
 except ImportError:
     GTAG_ID = None
 
+
 def index(request, *args, **kwargs):
+    """Render the homepage with default version and all books preselected (blank search)."""
     return db_refresh(
         request,
-        input_words="",
-        version_name=versions[0]["name"],
-        input_w=False,
         blank=True,
     )
 
 
 def search(request, *args, **kwargs):
+    """Handle the search form submission and render filtered search results."""
     return db_refresh(
         request,
         input_words=request.GET.get("keyword", ""),
         version_name=request.GET.get("version", ""),
-        input_w=True,
     )
 
 
-def case_flip(request, *args, **kwargs):
-    return db_refresh(request, flip_case=True)
-
-
 def dict_factory(cursor, row):
+    """Convert database rows into dictionaries keyed by column name."""
     return {col[0]: row[idx] for idx, col in enumerate(cursor.description)}
 
 
 def find_version(version_name):
+    """Return the version expansion and wiki link for a given short version name."""
     version = next(item for item in versions if item["name"] == version_name)
     return version["expansion"], version["wiki"]
 
 
-def update_selection(selected_books, testaments):
-    selected = set(selected_books.split())
-    for book in books:
-        if book["testament"] in testaments:
-            selected.symmetric_difference_update({book["num"]})
-    return " ".join(sorted(selected))
-
-
 def sort_rows(rows):
+    """Sort search result rows by book, chapter, and verse order."""
     return sorted(
         rows, key=lambda row: (row["Book"], row["Chapter"], row["Versecount"])
     )
 
 
-def update_testament(request, test, *args, **kwargs):
-    return db_refresh(request, flip_test=test)
-
-
-def book_select(request, *args, **kwargs):
-    book_name = request.GET.get("book")
-    for book in books:
-        if book["text"] == book_name:
-            return db_refresh(request, flip_book=book["num"])
-
-
-# Boolean query helpers
 def tokenize_expr(expr):
+    """Split a Boolean keyword expression into tokens (words and operators)."""
     return re.findall(r"\w+|[(),+]", expr)
 
 
 def to_postfix(tokens):
+    """
+    Convert infix Boolean tokens into postfix (Reverse Polish Notation).
+
+    Uses + as AND, , as OR, and supports parentheses.
+    """
     precedence = {"+": 2, ",": 1}
     output = []
     stack = []
@@ -95,6 +80,16 @@ def to_postfix(tokens):
 
 
 def build_sql_from_postfix(postfix_tokens, case_sensitive=False):
+    """
+    Build a safe SQL WHERE clause from postfix Boolean tokens.
+
+    Args:
+        postfix_tokens: list of tokens in postfix order.
+        case_sensitive: if True, performs case-sensitive search.
+
+    Returns:
+        A tuple of SQL WHERE clause string and list of values for binding.
+    """
     stack = []
     values = []
     for token in postfix_tokens:
@@ -113,6 +108,17 @@ def build_sql_from_postfix(postfix_tokens, case_sensitive=False):
 
 
 def sql_row_gen(expression, version_name, case_sensitive=False):
+    """
+    Execute the SQL query for a given search expression and Bible version.
+
+    Args:
+        expression: the Boolean search expression (user input).
+        version_name: short name of the Bible version (e.g., "ESV").
+        case_sensitive: whether to perform a case-sensitive search.
+
+    Returns:
+        A list of result rows as dictionaries.
+    """
     tokens = tokenize_expr(expression)
     postfix = to_postfix(tokens)
     where_clause, values = build_sql_from_postfix(postfix, case_sensitive)
@@ -123,7 +129,6 @@ def sql_row_gen(expression, version_name, case_sensitive=False):
     db.row_factory = dict_factory
     cur = db.cursor()
 
-    # 🔥 Add this line to enforce case-sensitive LIKE
     if case_sensitive:
         cur.execute("PRAGMA case_sensitive_like = true;")
 
@@ -143,6 +148,22 @@ def build_context(
     case_sensitive,
     keywords=None,
 ):
+    """
+    Build the Django template context dictionary for rendering results.
+
+    Args:
+        rows: list of search results (dicts).
+        version_name: short version identifier (e.g., "ESV").
+        version_exp: full name of the version.
+        version_wiki: link to the version's wiki page.
+        input_words: the original search expression.
+        selected_books: string of selected book numbers.
+        case_sensitive: whether search is case-sensitive.
+        keywords: optional list of words for highlighting.
+
+    Returns:
+        A dictionary suitable for rendering the template.
+    """
     if keywords is None:
         keywords = input_words.split()
     return {
@@ -162,19 +183,32 @@ def build_context(
 
 
 def db_refresh(request, *args, **kwargs):
-    input_words = kwargs.get("input_words", "")
-    version_name = kwargs.get("version_name") or request.GET.get("version", "ESV")
-    input_w = kwargs.get("input_w", False)
-    blank = kwargs.get("blank", False)
-    flip_case = kwargs.get("flip_case", False)
-    flip_book = kwargs.get("flip_book", "")
-    flip_test = kwargs.get("flip_test", "")
+    """
+    Core dispatcher for handling search and filter logic.
 
+    Args:
+        request: Django request object.
+        kwargs may include:
+          - input_words: search query string
+          - version_name: short version name
+          - blank: whether to initialize empty context
+          - flip_case: toggle case sensitivity
+          - flip_book: book number to toggle
+          - flip_test: testament key to toggle (ot, nt, bib)
+
+    Returns:
+        HttpResponse rendered with `index.html` and appropriate context.
+    """
+    blank = kwargs.get("blank", False)
+
+    input_words = kwargs.get("input_words", "")
+    version_name = kwargs.get("version_name") or request.GET.get(
+        "version", versions[0]["name"]
+    )
     version_exp, version_wiki = find_version(version_name)
 
     if blank:
-        selected_books = " ".join(book["num"] for book in books)
-        response = render(
+        return render(
             request,
             "index.html",
             build_context(
@@ -183,11 +217,10 @@ def db_refresh(request, *args, **kwargs):
                 version_exp=version_exp,
                 version_wiki=version_wiki,
                 input_words=input_words,
-                selected_books=selected_books,
+                selected_books=" ".join(book["num"] for book in books),
                 case_sensitive=False,
             ),
         )
-        return response
 
     case_sensitive = request.GET.get("case", "False") == "True"
     books_param = request.GET.get("books", "")
@@ -197,24 +230,8 @@ def db_refresh(request, *args, **kwargs):
         bits = f"{int(books_param):066b}"[::-1]
         selected_books = " ".join(f"{i:02}" for i, bit in enumerate(bits) if bit == "1")
 
-    if flip_case:
-        case_sensitive = not case_sensitive
-
-    if flip_book:
-        selected_books = (
-            selected_books.replace(flip_book, "")
-            if flip_book in selected_books
-            else selected_books + flip_book + " "
-        )
-    if flip_test:
-        selected_books = update_selection(
-            selected_books, testament_map.get(flip_test, [])
-        )
-
-    # ✅ extract words once, use everywhere
     highlight_words = re.findall(r"\w+", input_words) if input_words else []
 
-    # ✅ safe boolean-parsed SQL query + sorting
     raw_rows = sort_rows(sql_row_gen(input_words, version_name, case_sensitive))
     rows = []
     for row in raw_rows:
@@ -244,9 +261,7 @@ def db_refresh(request, *args, **kwargs):
             for match in matches:
                 start, end = match.span()
                 if start > last_idx:
-                    # Capture plain text before match, as string
                     parts.append({"text": verse_text[last_idx:start]})
-                # Capture the match
                 parts.append({"highlight": verse_text[start:end]})
                 last_idx = end
             if last_idx < len(verse_text):
