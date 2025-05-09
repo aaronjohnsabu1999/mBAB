@@ -21,7 +21,7 @@ if is_pythonanywhere:
 else:
     print("Running locally")
     DEBUG = True
-    ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+    ALLOWED_HOSTS = ["*"]
 
 # Application definition
 INSTALLED_APPS = [
@@ -31,7 +31,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "searchapp",  # <-- your app
+    "searchapp",
 ]
 
 MIDDLEWARE = [
