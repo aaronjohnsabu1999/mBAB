@@ -13,6 +13,7 @@
       };
     </script>
 
+    <!-- Theming and accessibility styles -->
     <style>
       html.dark .toggle-book.selected {
         background-color: #1e40af !important;
@@ -71,9 +72,10 @@
 
       html, body {
         overflow-x: hidden;
-        transition: background-color 0.5s, color 0.5s;
+        transition: background-color 0.5s, color 0.5s, border-color 0.5s;
       }
     </style>
+    <!-- Sidebar layout and custom scrollbar -->
     <style>
       #sidebar {
         transition: transform 0.5s ease-in-out, background-color 0.4s ease;
@@ -105,8 +107,6 @@
         position: absolute;
         background-color: rgba(156, 163, 175, 0.5);
       }
-    </style>
-    <style>
       #sidebar-scroll-container::-webkit-scrollbar {
         width: 8px;
         height: 8px;
@@ -137,7 +137,7 @@
   {% include "includes/gtag.html" %}
 
   <body class="flex flex-col min-h-screen bg-white text-black dark:bg-gray-900 dark:text-white">
-    <header id="site-header" class="bg-indigo-700 dark:bg-indigo-900 text-white py-6 shadow-md relative z-50">
+    <header id="site-header" class="bg-indigo-700 dark:bg-indigo-900 text-white py-3 sm:py-4 shadow-md fixed top-0 left-0 w-full z-50">
       <div class="w-full px-4 text-center">
         <h1 class="text-3xl font-bold">Multi-Book Advanced Bible Search</h1>
         <p class="text-sm">by Aaron John Sabu</p>
@@ -221,7 +221,8 @@
                                 <button type="button"
                                     data-book-id="{{ book.id }}"
                                     onclick="event.stopPropagation(); toggleBook({{ book.id }})"
-                                    class="toggle-book text-sm px-2 py-1 rounded font-medium w-full text-center truncate
+                                    class="toggle-book transition-colors duration-200 ease-in-out
+                                          text-sm px-2 py-1 rounded font-medium w-full text-center truncate
                                           {% if book.num in selBooks %}selected{% else %}deselected{% endif %}">
                                   {{ book.text }}
                                 </button>
@@ -242,7 +243,7 @@
       </div>
     </div>
 
-    <main class="w-full flex-grow p-6">
+    <main class="w-full flex-grow p-6 overflow-y-auto">
       <h2 class="text-xl font-semibold mb-4">
         Verse List
         {% if keyword %}
@@ -351,11 +352,24 @@
         // Dynamic top offset for sidebar
         const updateSidebarTop = () => {
           const height = siteHeader.offsetHeight;
+
+          // Update sidebar position and height
           sidebar.style.top = height + 'px';
           document.getElementById('sidebar-scroll-container').style.height = `calc(100vh - ${height}px)`;
+
+          // Update or insert header spacer
+          let spacer = document.getElementById('header-spacer');
+          if (!spacer) {
+            spacer = document.createElement('div');
+            spacer.id = 'header-spacer';
+            siteHeader.insertAdjacentElement('afterend', spacer);
+          }
+          spacer.style.height = height + 'px';
         };
+
         updateSidebarTop();
         window.addEventListener('resize', updateSidebarTop);
+
 
         // Sidebar resizer drag behavior
         resizer.addEventListener('mousedown', e => {
