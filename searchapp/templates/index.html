@@ -201,19 +201,38 @@
 
             <div class="grid grid-cols-1 gap-4">
               {% for testament in testaments %}
-              <div>
-                <h2 class="text-lg font-semibold mt-4 mb-2">{{ testament }}</h2>
-                <div class="space-y-1">
-                  {% for book in books %}
-                  {% if book.testament == testament %}
-                  <button type="button" onclick="toggleBook({{ book.id }}, this)"
-                    class="w-full px-2 py-1 rounded toggle-book font-medium {% if book.num in selBooks %}selected{% else %}deselected{% endif %}">
-                    {{ book.text }}
-                  </button>
-                  {% endif %}
+                <div class="mb-6">
+                  <h2 class="text-lg font-semibold mt-4 mb-2">{{ testament }}</h2>
+            
+                  {% for section_name, book_ids in book_sections.items %}
+                    {% if book_ids.0 < 39 and testament == 'Old Testament' or book_ids.0 >= 39 and book_ids.0 < 66 and testament == 'New Testament' %}
+                      <div class="bg-gray-100 dark:bg-gray-700 border rounded p-2 mb-4 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600"
+                          role="button"
+                          onclick="toggleSection({{ book_ids|safe }})">
+                      
+                        <h3 class="font-semibold text-base mb-2 text-indigo-700 dark:text-indigo-300">
+                          {{ section_name }}
+                        </h3>
+                      
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-2 pointer-events-none">
+                          {% for book in books %}
+                            {% if book.id in book_ids and book.testament == testament %}
+                              <div class="pointer-events-auto">
+                                <button type="button"
+                                    data-book-id="{{ book.id }}"
+                                    onclick="event.stopPropagation(); toggleBook({{ book.id }})"
+                                    class="toggle-book text-sm px-2 py-1 rounded font-medium w-full text-center truncate
+                                          {% if book.num in selBooks %}selected{% else %}deselected{% endif %}">
+                                  {{ book.text }}
+                                </button>
+                              </div>
+                            {% endif %}
+                          {% endfor %}
+                        </div>
+                      </div>
+                    {% endif %}
                   {% endfor %}
                 </div>
-              </div>
               {% endfor %}
             </div>
 
@@ -269,6 +288,7 @@
         const siteHeader = document.getElementById("site-header");
         const searchForm = document.getElementById("searchForm");
         const bookBits = new Array(66).fill(0);
+        const bookIdToIndex = {};
         let isResizing = false;
 
         // Restore saved theme
@@ -368,16 +388,37 @@
           caseToggle.classList.toggle("dark:bg-teal-700", !isNowTrue);
         });
 
-        // Initialize and wire up book selection buttons
         document.querySelectorAll('.toggle-book').forEach((btn, idx) => {
-          const isSelected = btn.classList.contains("selected");
-          bookBits[idx] = isSelected ? 1 : 0;
-          btn.addEventListener('click', () => {
+          const bookId = parseInt(btn.dataset.bookId);
+          bookBits[idx] = btn.classList.contains("selected") ? 1 : 0;
+          bookIdToIndex[bookId] = idx;
+        });
+
+        window.toggleBook = function(id) {
+          const idx = bookIdToIndex[id];
+          const btn = document.querySelector(`.toggle-book[data-book-id="${id}"]`);
+          if (typeof idx === "number" && btn) {
             bookBits[idx] ^= 1;
             btn.classList.toggle("selected", bookBits[idx]);
             btn.classList.toggle("deselected", !bookBits[idx]);
+          }
+        };
+
+        window.toggleSection = function(bookIds) {
+          const allSelected = bookIds.every(id => bookBits[bookIdToIndex[id]] === 1);
+          const newValue = allSelected ? 0 : 1;
+
+          bookIds.forEach(id => {
+            const idx = bookIdToIndex[id];
+            const btn = document.querySelector(`.toggle-book[data-book-id="${id}"]`);
+            if (typeof idx === "number" && btn) {
+              bookBits[idx] = newValue;
+              btn.classList.toggle("selected", newValue === 1);
+              btn.classList.toggle("deselected", newValue === 0);
+            }
           });
-        });
+        };
+
 
         // Book filter shortcuts
         window.toggleTestament = key => {

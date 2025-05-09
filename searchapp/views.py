@@ -1,6 +1,6 @@
 import re, sqlite3
 from django.shortcuts import render
-from .bibledata import testaments, testament_map, books, versions, sql_select, sql_order
+from .bibledata import testaments, book_sections, books, versions, sql_select, sql_order
 
 try:
     from .gtag_secret import GTAG_ID
@@ -170,6 +170,7 @@ def build_context(
         "testaments": testaments,
         "books": books,
         "versions": versions,
+        "book_sections": book_sections,
         "rows": rows,
         "version_name": version_name,
         "version_exp": version_exp,
