@@ -1,4 +1,4 @@
-import os
+import os, socket
 from pathlib import Path
 
 # Base directory
@@ -7,11 +7,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "mBABonPython"  # replace later for production
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Detect environment based on hostname or environment variable
+hostname = socket.gethostname()
+try:
+    is_pythonanywhere = 'pythonanywhere' in hostname or 'pythonanywhere' in os.getenv("PYTHONANYWHERE_SITE")
+except TypeError:
+    is_pythonanywhere = False
 
-# ALLOWED_HOSTS = ["127.0.0.1", "aaronjs.pythonanywhere.com"] # production
-ALLOWED_HOSTS = ["*"]  # testing
+if is_pythonanywhere:
+    print("Running on PythonAnywhere")
+    DEBUG = False
+    ALLOWED_HOSTS = ["aaronjs.pythonanywhere.com"]
+else:
+    print("Running locally")
+    DEBUG = True
+    ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
 # Application definition
 INSTALLED_APPS = [
@@ -70,8 +80,12 @@ USE_TZ = True
 
 # Static files
 STATIC_URL = "/static/"
-STATICFILES_DIRS = [BASE_DIR / "searchapp" / "static"]
+STATICFILES_DIRS = [str(BASE_DIR / "searchapp" / "static")]
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_FINDERS = [
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+]
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
