@@ -19,15 +19,17 @@ This web application allows users to search for word sequences—case-sensitive 
 
 **Features**
 - Multi-book and multi-version search
-- Logical AND (+) and OR (,) search syntax
+- Logical AND (+) and OR (,) search syntax prioritized with parentheses
 - Case sensitivity toggle
+- Book selector grouped by Testament and Section
 - Responsive UI with collapsible book selector
+- Optional themes: Light ☀️, Dark 🌙, and High Contrast ⚫
 
 Hosted live at [aaronjs.pythonanywhere.com](http://aaronjs.pythonanywhere.com/).
 
 Originally built with Flask, now rebuilt using Django for better scalability and maintainability.
 
-![A Search Example](./mBAB.png "Searching for 'spirit' and 'holy' and 'christ' within the non-Pauline New Testament books in the English Standard Version English Bible")
+![A Search Example](./mBAB.gif "Searching for 'spirit' and 'holy' and 'christ' within the non-Pauline New Testament books in the English Standard Version English Bible")
 
 ## Getting Started for Developers
 
@@ -122,9 +124,10 @@ The searchable Bible content is based on SQL databases originally published by [
 - [ ] Add pagination for search results
 - [x] Enable logical grouping and parentheses in search syntax
 - [x] Move controls into a collapsible sidebar
-- [ ] Improve styling with more theme options
+- [x] Improve styling with more theme options
 - [ ] Add optional user accounts with saved history
-- [ ] Subdivide books by genre (Law, Gospels, etc.)
+- [x] Subdivide books by genre (Law, Gospels, etc.)
+- [ ] Provide user manual
 
 ## License
 
