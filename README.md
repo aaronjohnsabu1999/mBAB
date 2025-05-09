@@ -29,7 +29,7 @@ Hosted live at [aaronjs.pythonanywhere.com](http://aaronjs.pythonanywhere.com/).
 
 Originally built with Flask, now rebuilt using Django for better scalability and maintainability.
 
-![A Search Example](./mBAB.gif "Searching for 'spirit' and 'holy' and 'christ' within the non-Pauline New Testament books in the English Standard Version English Bible")
+![A Search Example](./searchapp/static/searchapp/images/mBAB_demo.gif "Searching for 'spirit' and 'holy' and 'christ' within the non-Pauline New Testament books in the English Standard Version English Bible")
 
 ## Getting Started for Developers
 
