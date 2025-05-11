@@ -356,7 +356,7 @@
         sidebar.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX);
         sidebar.addEventListener('touchend', e => {
           const swipe = e.changedTouches[0].screenX - touchStartX;
-          if (swipe > 50 && !sidebar.classList.contains("-translate-x-full")) {
+          if (swipe < -80 && !sidebar.classList.contains("-translate-x-full")) {
             sidebar.classList.add("-translate-x-full");
           }
         });
