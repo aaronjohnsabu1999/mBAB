@@ -29,7 +29,7 @@ Hosted live at [aaronjs.pythonanywhere.com](http://aaronjs.pythonanywhere.com/).
 
 Originally built with Flask, now rebuilt using Django for better scalability and maintainability.
 
-![A Search Example](./searchapp/static/searchapp/images/mBAB_demo.gif "Searching for 'spirit' and 'holy' and 'christ' within the non-Pauline New Testament books in the English Standard Version English Bible")
+![A Search Example](./searchapp/static/searchapp/images/mBAB_demo.gif "Searching for either 'holy' or both 'spirit' and 'christ' within the non-Pauline New Testament books in the English Standard Version English Bible")
 
 ## Getting Started for Developers
 
@@ -120,7 +120,7 @@ The searchable Bible content is based on SQL databases originally published by [
 ## Roadmap & Potential Contributions
 
 ### Search Capabilities
-- [ ] Add pagination for search results
+- [x] Add pagination for search results
 - [ ] Include search within verse ranges (e.g., John 3:16–21)
 - [ ] Include fuzzy matching or stemming (e.g., "loves" → "love")
 - [ ] Include natural language search (e.g., "verses about forgiveness")
@@ -142,7 +142,7 @@ The searchable Bible content is based on SQL databases originally published by [
 - [ ] Provide API access for other apps/church tools to integrate Bible search
 
 ### UI/UX Enhancements
-- [ ] Add loading animations or skeletons on long queries
+- [x] Add loading animations or skeletons on long queries
 - [x] Make the UI fully responsive for mobile screens
 - [x] Move controls into a collapsible sidebar
 - [x] Improve styling with more theme options

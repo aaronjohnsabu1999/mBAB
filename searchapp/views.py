@@ -1,7 +1,8 @@
 import re, sqlite3
 from django.shortcuts import render
-from .bibledata import testaments, book_sections, books, versions, sql_select, sql_order
+from django.http import JsonResponse
 
+from .bibledata import testaments, book_sections, books, versions, sql_select, sql_order
 try:
     from .gtag_secret import GTAG_ID
 except ImportError:
@@ -9,11 +10,10 @@ except ImportError:
 
 
 def index(request, *args, **kwargs):
-    """Render the homepage with default version and all books preselected (blank search)."""
-    return db_refresh(
-        request,
-        blank=True,
-    )
+    """Render homepage or run search if params are in URL (for sharable links)."""
+    if request.GET.get("keyword") and request.GET.get("books"):
+        return search(request)
+    return db_refresh(request, blank=True)
 
 
 def search(request, *args, **kwargs):
@@ -288,3 +288,53 @@ def db_refresh(request, *args, **kwargs):
     )
 
     return response
+
+
+def search_ajax(request):
+    keyword = request.GET.get("keyword", "")
+    version = request.GET.get("version", "ESV")
+    case = request.GET.get("case", "False") == "True"
+    books_param = request.GET.get("books", "")
+
+    bits = f"{int(books_param):066b}"[::-1]
+    selected_books = " ".join(f"{i:02}" for i, bit in enumerate(bits) if bit == "1")
+
+    version_exp, version_wiki = find_version(version)
+    highlight_words = re.findall(r"\w+", keyword) if keyword else []
+
+    raw_rows = sort_rows(sql_row_gen(keyword, version, case))
+    rows = []
+    for row in raw_rows:
+        if f"{row['Book']:02}" in selected_books:
+            book_text = next(b for b in books if b["id"] == row["Book"])["text"]
+            rows.append(
+                {
+                    "Book": book_text,
+                    "Chapter": row["Chapter"],
+                    "Versecount": row["Versecount"],
+                    "verse": row["verse"],
+                }
+            )
+
+    for row in rows:
+        if keyword:
+            regex = "|".join(re.escape(word) for word in highlight_words)
+            verse_text = row["verse"]
+            matches = list(
+                re.finditer(regex, verse_text, flags=0 if case else re.IGNORECASE)
+            )
+            parts = []
+            last_idx = 0
+            for match in matches:
+                start, end = match.span()
+                if start > last_idx:
+                    parts.append({"text": verse_text[last_idx:start]})
+                parts.append({"highlight": verse_text[start:end]})
+                last_idx = end
+            if last_idx < len(verse_text):
+                parts.append({"text": verse_text[last_idx:]})
+            row["verse"] = parts
+        else:
+            row["verse"] = [{"text": row["verse"]}]
+
+    return JsonResponse({"results": rows})
