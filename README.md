@@ -119,15 +119,33 @@ The searchable Bible content is based on SQL databases originally published by [
 
 ## Roadmap & Potential Contributions
 
-- [x] Make the UI fully responsive for mobile screens
-- [ ] Support copyrighted Bible versions (NIV, NLT, BSI, etc.)
+### Search Capabilities
 - [ ] Add pagination for search results
+- [ ] Include search within verse ranges (e.g., John 3:16–21)
+- [ ] Include fuzzy matching or stemming (e.g., "loves" → "love")
+- [ ] Include natural language search (e.g., "verses about forgiveness")
+- [ ] Track recent or most common searches
+- [x] Subdivide books by genre (Law, Gospels, etc.)
 - [x] Enable logical grouping and parentheses in search syntax
+
+### User Features
+- [ ] Add optional user accounts with saved history
+- [ ] Allow bookmarking/saving of favorite verses (via local storage or user accounts)
+- [x] Provide user manual
+
+### Accessibility & Internationalization
+- [ ] Support multi-language display (e.g., Spanish, Hindi, Malayalam)
+- [ ] Enable keyboard-only navigation mode
+- [ ] Support copyrighted Bible versions (NIV, NLT, BSI, etc.)
+
+### Developer Integrations
+- [ ] Provide API access for other apps/church tools to integrate Bible search
+
+### UI/UX Enhancements
+- [ ] Add loading animations or skeletons on long queries
+- [x] Make the UI fully responsive for mobile screens
 - [x] Move controls into a collapsible sidebar
 - [x] Improve styling with more theme options
-- [ ] Add optional user accounts with saved history
-- [x] Subdivide books by genre (Law, Gospels, etc.)
-- [ ] Provide user manual
 
 ## License
 
