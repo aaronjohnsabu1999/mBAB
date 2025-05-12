@@ -295,40 +295,48 @@
             </ul>
             <div>
               <p class="font-semibold mb-2">Search Examples:</p>
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-left">
-                <div class="font-mono font-semibold">Expression</div>
-                <div class="font-semibold">Meaning</div>
-                <div class="font-semibold">Examples</div>
-
-                <div><code>(faith + Christ), (faith + Abraham)</code></div>
-                <div>“faith” with “Christ” or “Abraham”</div>
-                <div>Gal 3:22, Rom 4:16</div>
-
-                <div><code>(love + God) + neighbor</code></div>
-                <div>All three: “love”, “God”, and “neighbor”</div>
-                <div>Luke 10:27</div>
-
-                <div><code>(resurrection + dead), (eternal + life)</code></div>
-                <div>Either “resurrection” and “dead” or “eternal” and “life”</div>
-                <div>Acts 4:2, Rom 6:23</div>
-
-                <div><code>law + (sin, grace)</code></div>
-                <div>“law” with either “sin” or “grace”</div>
-                <div>Rom 8:2, Gal 2:21</div>
-
-                <div><code>(law + sin), grace</code></div>
-                <div>“law” and “sin”, or just “grace”</div>
-                <div>Rom 5:20, Gal 2:21</div>
-
-                <div><code>law + sin, grace</code></div>
-                <div>Same as above: AND first, then OR</div>
-                <div>Rom 5:20, Gal 2:21</div>
+              <div class="space-y-0 text-sm text-left">
+                <div class="hidden md:grid md:grid-cols-[1.35fr_1.05fr_0.60fr] gap-4 font-semibold font-mono mb-2">
+                  <div>Expression</div>
+                  <div class="font-sans">Meaning</div>
+                  <div class="font-sans">Examples</div>
+                </div>
+                <div class="grid md:grid-cols-[1.35fr_1.05fr_0.60fr] gap-4 border-t border-gray-300 dark:border-gray-700 md:border-none py-4 md:py-0">
+                  <div><code class="font-mono">(faith + Christ), (faith + Abraham)</code></div>
+                  <div>“faith” with “Christ” or “Abraham”</div>
+                  <div>Gal 3:22, Rom 4:16</div>
+                </div>
+                <div class="grid md:grid-cols-[1.35fr_1.05fr_0.60fr] gap-4 border-t border-gray-300 dark:border-gray-700 md:border-none py-4 md:py-0">
+                  <div><code class="font-mono">(love + God) + neighbor</code></div>
+                  <div>All three: “love”, “God”, and “neighbor”</div>
+                  <div>Luke 10:27</div>
+                </div>
+                <div class="grid md:grid-cols-[1.35fr_1.05fr_0.60fr] gap-4 border-t border-gray-300 dark:border-gray-700 md:border-none py-4 md:py-0">
+                  <div><code class="font-mono">(resurrection + dead), (eternal + life)</code></div>
+                  <div>Either “resurrection” and “dead” or “eternal” and “life”</div>
+                  <div>Acts 4:2, Rom 6:23</div>
+                </div>
+                <div class="grid md:grid-cols-[1.35fr_1.05fr_0.60fr] gap-4 border-t border-gray-300 dark:border-gray-700 md:border-none py-4 md:py-0">
+                  <div><code class="font-mono">law + (sin, grace)</code></div>
+                  <div>“law” with either “sin” or “grace”</div>
+                  <div>Rom 8:2, Gal 2:21</div>
+                </div>
+                <div class="grid md:grid-cols-[1.35fr_1.05fr_0.60fr] gap-4 border-t border-gray-300 dark:border-gray-700 md:border-none py-4 md:py-0">
+                  <div><code class="font-mono">(law + sin), grace</code></div>
+                  <div>“law” and “sin”, or just “grace”</div>
+                  <div>Rom 5:20, Gal 2:21</div>
+                </div>
+                <div class="grid md:grid-cols-[1.35fr_1.05fr_0.60fr] gap-4 border-t border-gray-300 dark:border-gray-700 md:border-none py-4 md:py-0">
+                  <div><code class="font-mono">law + sin, grace</code></div>
+                  <div>Same as above: AND first, then OR</div>
+                  <div>Rom 5:20, Gal 2:21</div>
+                </div>
               </div>
             </div>
             <div class="bg-yellow-100 dark:bg-yellow-800/90 text-black dark:text-white p-4 rounded-lg border border-yellow-400 dark:border-yellow-600 leading-relaxed">
               <p class="font-bold mb-1">Note on Operators:</p>
               <p><code class="font-mono">+</code> means <strong>AND</strong>, and <code class="font-mono">,</code> means <strong>OR</strong>.</p>
-              <p>Expressions are parsed with <code class="font-mono">+</code> before <code class="font-mono">,</code>, so:</p>
+              <p>Expressions are parsed with <code class="font-mono">+</code> before <code class="font-mono">,</code></p>
               <p><code class="font-mono">word1 + word2, word3</code> is interpreted as: <code class="font-mono">(word1 AND word2) OR word3</code></p>
             </div>
           </div>
