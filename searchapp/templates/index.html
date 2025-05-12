@@ -156,7 +156,7 @@
             </div>
           </div>
           <button onclick="openDemoModal()" class="bg-indigo-600 text-white px-4 py-1 rounded text-sm hover:bg-indigo-700">
-            🎬 Demo
+            🎬 Demo and Instructions
           </button>
         </div>
       </div>
@@ -280,10 +280,59 @@
 
     <!-- Demo Modal -->
     <div id="demoModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden">
-      <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow-lg max-w-3xl w-full p-4">
-        <button onclick="closeDemoModal()" class="absolute top-2 right-2 text-gray-500 hover:text-red-600 text-xl font-bold">&times;</button>
-        <h2 class="text-xl font-semibold mb-2 text-center text-indigo-700 dark:text-indigo-300">Live Demo</h2>
-        <img src="{% static 'searchapp/images/mBAB_demo.gif' %}" alt="Demo GIF" class="w-full rounded" />
+      <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="p-4">
+          <button onclick="closeDemoModal()" class="absolute top-2 right-2 text-gray-500 hover:text-red-600 text-xl font-bold">&times;</button>
+          <h2 class="text-xl font-semibold mb-2 text-center text-indigo-700 dark:text-indigo-300">Live Demo</h2>
+          <img src="{% static 'searchapp/images/mBAB_demo.gif' %}" alt="Demo GIF" class="w-full rounded mb-4" />
+          <div class="text-sm text-gray-800 dark:text-gray-200 space-y-4">
+            <h3 class="text-lg font-semibold">Instructions</h3>
+            <ul class="list-disc list-inside space-y-1">
+              <li>Select Bible books using the buttons grouped by Old and New Testaments.</li>
+              <li>Switch between case-sensitive and case-insensitive search with the toggle.</li>
+              <li>Choose your preferred Bible version and theme.</li>
+              <li>Click “Search” to view results matching your criteria.</li>
+            </ul>
+            <div>
+              <p class="font-semibold mb-2">Search Examples:</p>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-left">
+                <div class="font-mono font-semibold">Expression</div>
+                <div class="font-semibold">Meaning</div>
+                <div class="font-semibold">Examples</div>
+
+                <div><code>(faith + Christ), (faith + Abraham)</code></div>
+                <div>“faith” with “Christ” or “Abraham”</div>
+                <div>Gal 3:22, Rom 4:16</div>
+
+                <div><code>(love + God) + neighbor</code></div>
+                <div>All three: “love”, “God”, and “neighbor”</div>
+                <div>Luke 10:27</div>
+
+                <div><code>(resurrection + dead), (eternal + life)</code></div>
+                <div>Either “resurrection” and “dead” or “eternal” and “life”</div>
+                <div>Acts 4:2, Rom 6:23</div>
+
+                <div><code>law + (sin, grace)</code></div>
+                <div>“law” with either “sin” or “grace”</div>
+                <div>Rom 8:2, Gal 2:21</div>
+
+                <div><code>(law + sin), grace</code></div>
+                <div>“law” and “sin”, or just “grace”</div>
+                <div>Rom 5:20, Gal 2:21</div>
+
+                <div><code>law + sin, grace</code></div>
+                <div>Same as above: AND first, then OR</div>
+                <div>Rom 5:20, Gal 2:21</div>
+              </div>
+            </div>
+            <div class="bg-yellow-100 dark:bg-yellow-800/90 text-black dark:text-white p-4 rounded-lg border border-yellow-400 dark:border-yellow-600 leading-relaxed">
+              <p class="font-bold mb-1">Note on Operators:</p>
+              <p><code class="font-mono">+</code> means <strong>AND</strong>, and <code class="font-mono">,</code> means <strong>OR</strong>.</p>
+              <p>Expressions are parsed with <code class="font-mono">+</code> before <code class="font-mono">,</code>, so:</p>
+              <p><code class="font-mono">word1 + word2, word3</code> is interpreted as: <code class="font-mono">(word1 AND word2) OR word3</code></p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -473,7 +522,16 @@
       });
 
       function openDemoModal() {
-        document.getElementById('demoModal').classList.remove('hidden');
+        const modal = document.getElementById('demoModal');
+        modal.classList.remove('hidden');
+
+        // Close if clicking outside the modal content
+        modal.addEventListener('click', function handler(e) {
+          if (e.target === modal) {
+            closeDemoModal();
+            modal.removeEventListener('click', handler); // cleanup
+          }
+        });
       }
 
       function closeDemoModal() {
