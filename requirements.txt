@@ -1,3 +1,5 @@
 django
+gunicorn
+whitenoise
 black
 db-sqlite3

@@ -13,11 +13,19 @@ try:
     is_pythonanywhere = 'pythonanywhere' in hostname or 'pythonanywhere' in os.getenv("PYTHONANYWHERE_SITE")
 except TypeError:
     is_pythonanywhere = False
+try:
+    is_heroku = "DYNO" in os.environ
+except TypeError:
+    is_heroku = False
 
 if is_pythonanywhere:
     print("Running on PythonAnywhere")
     DEBUG = False
     ALLOWED_HOSTS = ["aaronjs.pythonanywhere.com"]
+elif is_heroku:
+    print("Running on Heroku")
+    DEBUG = False
+    ALLOWED_HOSTS = ["*"]
 else:
     print("Running locally")
     DEBUG = True
@@ -36,6 +44,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -49,7 +58,7 @@ ROOT_URLCONF = "mBAB.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "searchapp" / "templates"],  # <-- Your templates dir
+        "DIRS": [BASE_DIR / "searchapp" / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -80,8 +89,8 @@ USE_TZ = True
 
 # Static files
 STATIC_URL = "/static/"
-STATICFILES_DIRS = [str(BASE_DIR / "searchapp" / "static")]
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_DIRS = [str(BASE_DIR / "searchapp" / "static")]
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
